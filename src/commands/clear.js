@@ -1,0 +1,33 @@
+const { command } = require('../global');
+const { TextChannel } = require('discord.js');
+
+/** @type {command} */
+module.exports = {
+    name: 'clear',
+    aliases: ['purge'],
+    desc: 'Clears the messages',
+    async execute(msg, args) {
+        const { channel, member } = msg;
+        if (!(channel instanceof TextChannel))
+            return;
+
+        if (!member.hasPermission('MANAGE_MESSAGES'))
+            return await channel.send("You don't have enough permission!");
+        if (!args[0])
+            return await channel.send('Invalid arguments!');
+
+        let amount = 0;
+        try {
+            amount = parseInt(args[0]);
+        } catch (error) {
+            return await channel.send('Please input the amount of messages you want to delete!');
+        }
+
+        if (amount > 100)
+            return await channel.send('That amount is WAAAAYYY TOO HIGH! Limit is 100 my men!');
+
+        channel.bulkDelete(amount)
+            .then(async (msgs) => await channel.send(`Successfully deleted ${msgs.size}/${amount} messages!`))
+            .catch(async (_) => await channel.send('Failed to clear messages!'));
+    }
+};

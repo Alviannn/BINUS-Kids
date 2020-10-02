@@ -1,0 +1,4 @@
+/.env
+/schedules.json
+/temp.json
+/node_modules
