@@ -17,9 +17,10 @@ client.on('message', async (msg) => {
 
     const clientUser = client.user;
     const member = guild.member(clientUser);
+    const config = require('../config.json');
 
     if (mentions.members.array()[0] === member)
-        await msg.reply(`The bot isn't ready yet!`);
+        await msg.reply(`The bot prefix is **${config.prefix}**!`);
 });
 
 client.on('ready', async () => {
@@ -27,23 +28,7 @@ client.on('ready', async () => {
 });
 
 client.on('message', async (msg) => {
-    const { channel, content, author } = msg;
-    if (author.id !== '217970261230747648')
-        return;
-
-    // ------ Debug ------ //
-
-    if (content === 'DEBUG!') {
-        const { commandMap } = global.manager;
-
-        await channel.send('CommandMap Size: ' + commandMap.size);
-        for (const cmd of commandMap.values())
-            await channel.send(`{**name**: \`${cmd.name}\`, **aliases**: \`[${cmd.aliases}]\`, **desc**: \`${cmd.desc}}\``);
-
-        return;
-    }
-
-    // ------ Commands ------ //
+    const { channel, content } = msg;
 
     const config = require('../config.json');
     // determines if a command supposed to be executed
