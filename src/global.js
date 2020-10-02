@@ -77,6 +77,31 @@ module.exports = {
                 commandMap.set(command.name, command);
                 console.log(`[COMMAND] Loaded ${file}!`);
             }
+        },
+        /**
+         * Loads all events
+         * 
+         * @param {fs.PathLike} eventsPath the events folder path
+         */
+        loadEvents(eventsPath) {
+            if (!fs.existsSync(eventsPath))
+                throw Error('Cannot find events folder path!');
+            if (!fs.lstatSync(eventsPath).isDirectory())
+                throw Error("Events path isn't a folder/directory!");
+
+            for (const file of fs.readdirSync(eventsPath)) {
+                // excludes invalid files
+                if (file.startsWith('_') || !file.endsWith('.js'))
+                    continue;
+
+                // resolves the file path to command
+                // this is necessary for loading another JS files
+                const resolvedPath = path.resolve(path.join(eventsPath, file));
+                // loads the events codes
+                require(resolvedPath);
+
+                console.log(`[EVENT] Loaded ${file}!`);
+            }
         }
     },
     /** The global utilities */

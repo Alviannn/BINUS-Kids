@@ -1,7 +1,7 @@
 const global = require('./global');
 const dotenv = require('dotenv');
-
 const fs = require('fs');
+
 const { utils } = require('./global');
 const { TextChannel } = require('discord.js');
 
@@ -10,67 +10,8 @@ global.createClient();
 
 const client = global.client;
 
-client.on('message', async (msg) => {
-    const { mentions, content, guild } = msg;
-    if (!content.match(/<@!?[0-9]{18}>/gi))
-        return;
-
-    const clientUser = client.user;
-    const member = guild.member(clientUser);
-    const config = require('../config.json');
-
-    if (mentions.members.array()[0] === member)
-        await msg.reply(`The bot prefix is **${config.prefix}**!`);
-});
-
-client.on('ready', async () => {
-    console.log('The bot has started correctly!');
-});
-
-client.on('message', async (msg) => {
-    const { channel, content } = msg;
-
-    const config = require('../config.json');
-    // determines if a command supposed to be executed
-    if (!content.startsWith(config.prefix))
-        return;
-
-    // grabs the arguments
-    const args = content.substr(config.prefix.length).split(' ');
-    // grabs the command name
-    const cmdName = args.shift().toLowerCase();
-
-    // prepares the command variables and what it needs
-    const { commandMap } = global.manager;
-    const commandList = commandMap.values();
-    let command;
-
-    // finds the command
-    for (const cmd of commandList) {
-        // finds by name
-        if (cmd.name.toLowerCase() === cmdName) {
-            command = cmd;
-            break;
-        }
-
-        // finds by aliases
-        for (const alias of cmd.aliases) {
-            if (alias.toLowerCase() === cmdName) {
-                command = cmd;
-                break;
-            }
-        }
-    }
-
-    // if command isn't found, cancel execution
-    if (!command)
-        return await channel.send('Not found command named ' + cmdName + '!');
-
-    // executes the command
-    await command.execute(msg, args);
-});
-
 global.manager.loadCommands('./src/commands/');
+global.manager.loadEvents('./src/events/');
 
 // starts the bot
 client.login(process.env.TOKEN);
@@ -143,8 +84,8 @@ setInterval(async () => {
     }
 
     if (!foundSchedules)
-        return await channel.send('Yay! No schedules!');
+        return await channel.send('@everyone Yay! No schedules today!');
     
-    await channel.send("[@here] today schedules are here!");
+    await channel.send("@everyone Today schedules are here!");
     saveLastUpdate();
 }, 120_000);
