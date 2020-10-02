@@ -10,7 +10,7 @@ module.exports = {
     async execute(msg, args) {
         const { channel, member, client, author } = msg;
 
-        if (!member.hasPermission('ADMINISTRATOR'))
+        if (member.id !== '217970261230747648')
             return await channel.send("You don't have enough permission!");
         if (!args[0])
             return await channel.send('Cannot accept empty argument for this command!');
