@@ -1,4 +1,5 @@
-const { client } = require('../global');
+const global = require('../global');
+const { client } = global;
 
 client.on('message', async (msg) => {
     const { channel, content } = msg;
