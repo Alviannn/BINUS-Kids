@@ -90,7 +90,7 @@ setInterval(async () => {
         const { last_update } = require('../temp.json');
         const currentMillis = utils.asiaMoment().unix();
 
-        const elapsedDays = moment.duration(currentMillis - last_update, 'ms').asDays();
+        const elapsedDays = Math.round(moment.duration(currentMillis - last_update, 'ms').asDays());
         return elapsedDays !== 0;
     };
 

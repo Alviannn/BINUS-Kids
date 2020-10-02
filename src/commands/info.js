@@ -18,8 +18,7 @@ module.exports = {
             .setAuthor('Bot Information', client.user.displayAvatarURL())
             .setThumbnail(image)
             .addField('Bot prefix', '`' + config.prefix + '`')
-            .addField('Bot author', 'Alvian#1341')
-            .addField('')
+            .addField('Bot author', 'Alvian#1341');
 
         return await channel.send(embed);
     }
