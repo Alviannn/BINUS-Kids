@@ -7,7 +7,7 @@ client.on('message', async (msg) => {
 
     const clientUser = client.user;
     const member = guild.member(clientUser);
-    const config = require('../config.json');
+    const config = require('../../config.json');
 
     if (mentions.members.array()[0] === member)
         await msg.reply(`The bot prefix is **${config.prefix}**!`);

@@ -3,7 +3,7 @@ const { client } = require('../global');
 client.on('message', async (msg) => {
     const { channel, content } = msg;
 
-    const config = require('../config.json');
+    const config = require('../../config.json');
     // determines if a command supposed to be executed
     if (!content.startsWith(config.prefix))
         return;
