@@ -102,6 +102,27 @@ module.exports = {
 
                 console.log(`[EVENT] Loaded ${file}!`);
             }
+        },
+        /**
+         * Finds a command
+         * 
+         * @param {string} name the possible command name
+         * @returns {commandTemplate | null}
+         */
+        findCommand(name) {
+            const { commandMap } = module.exports.manager;
+
+            for (const cmd of commandMap.values()) {
+                if (cmd.name.toLowerCase() === name.toLowerCase())
+                    return cmd;
+                
+                for (const alias of cmd.aliases) {
+                    if (alias.toLowerCase() === name.toLowerCase())
+                        return cmd;
+                }
+            }
+
+            return null;
         }
     },
     /** The common utilities */

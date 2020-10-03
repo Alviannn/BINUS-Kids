@@ -1,5 +1,5 @@
 const commons = require('../commons');
-const { client } = commons;
+const { client, manager } = commons;
 
 client.on('message', async (msg) => {
     const { channel, content } = msg;
@@ -13,28 +13,8 @@ client.on('message', async (msg) => {
     const args = content.substr(config.prefix.length).split(' ');
     // grabs the command name
     const cmdName = args.shift().toLowerCase();
-
-    // prepares the command variables and what it needs
-    const { commandMap } = commons.manager;
-    const commandList = commandMap.values();
-    let command;
-
-    // finds the command
-    for (const cmd of commandList) {
-        // finds by name
-        if (cmd.name.toLowerCase() === cmdName) {
-            command = cmd;
-            break;
-        }
-
-        // finds by aliases
-        for (const alias of cmd.aliases) {
-            if (alias.toLowerCase() === cmdName) {
-                command = cmd;
-                break;
-            }
-        }
-    }
+    // finds command
+    const command = manager.findCommand(cmdName);
 
     // if command isn't found, cancel execution
     if (!command)

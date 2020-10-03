@@ -1,5 +1,5 @@
 const commons = require('../commons');
-const { command } = commons;
+const { command, manager } = commons;
 const { MessageEmbed } = require('discord.js');
 
 /** @type {command} */
@@ -8,8 +8,8 @@ module.exports = {
     aliases: [],
     desc: 'Shows all available commands for users to use!',
     async execute(msg, args) {
+        const { commandMap } = manager;
         const { author, client, channel } = msg;
-        const { commandMap } = commons.manager;
 
         if (!args[0]) {
             const result = [];
@@ -27,37 +27,18 @@ module.exports = {
         }
 
         const possibleName = args[0].toLowerCase();
-        /** @type {command} */
-        let cmd;
+        const command = manager.findCommand(possibleName);
 
-        // tries to find the command
-        for (const temp of commandMap.values()) {
-            if (temp.name.toLowerCase() === possibleName) {
-                cmd = possibleName;
-                break;
-            }
-
-            for (const alias of temp.aliases) {
-                if (alias.toLowerCase() === possibleName) {
-                    cmd = possibleName;
-                    break;
-                }
-            }
-
-            if (cmd)
-                break;
-        }
-
-        if (!cmd)
+        if (!command)
             return await channel.send('Cannot find any command named `' + args[0] + '`!');
 
         const embed = new MessageEmbed()
             .setAuthor('Command Information')
             .setColor('RANDOM')
             .setThumbnail(client.user.displayAvatarURL())
-            .addField('Name', cmd.name)
-            .addField('Aliases', `[${cmd.aliases ? cmd.aliases.join(', ') : ''}]`)
-            .addField('Description', cmd.desc ? cmd.desc : '_No description_')
+            .addField('Name', command.name)
+            .addField('Aliases', `[${command.aliases ? command.aliases.join(', ') : ''}]`)
+            .addField('Description', command.desc ? command.desc : '_No description_')
             .setFooter(`Executed by ${author.tag}`, author.displayAvatarURL());
 
         return await channel.send(embed);
