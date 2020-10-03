@@ -1,4 +1,4 @@
-const { command } = require('../global');
+const { command } = require('../commons');
 const { TextChannel } = require('discord.js');
 
 /** @type {command} */

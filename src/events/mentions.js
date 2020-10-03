@@ -1,4 +1,4 @@
-const { client } = require('../global');
+const { client } = require('../commons');
 
 client.on('message', async (msg) => {
     const { mentions, content, guild } = msg;

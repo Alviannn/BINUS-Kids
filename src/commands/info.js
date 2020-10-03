@@ -1,7 +1,7 @@
-const global = require('../global');
+const commons = require('../commons');
 
 const { MessageEmbed } = require('discord.js');
-const { command } = global;
+const { command } = commons;
 
 /** @type {command} */
 module.exports = {

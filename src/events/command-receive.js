@@ -1,5 +1,5 @@
-const global = require('../global');
-const { client } = global;
+const commons = require('../commons');
+const { client } = commons;
 
 client.on('message', async (msg) => {
     const { channel, content } = msg;
@@ -15,7 +15,7 @@ client.on('message', async (msg) => {
     const cmdName = args.shift().toLowerCase();
 
     // prepares the command variables and what it needs
-    const { commandMap } = global.manager;
+    const { commandMap } = commons.manager;
     const commandList = commandMap.values();
     let command;
 

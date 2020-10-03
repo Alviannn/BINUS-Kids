@@ -104,7 +104,7 @@ module.exports = {
             }
         }
     },
-    /** The global utilities */
+    /** The common utilities */
     utils: {
         _schedule_result: _schedule_result,
         /**

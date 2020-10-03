@@ -1,17 +1,17 @@
-const global = require('./global');
+const commons = require('./commons');
 const dotenv = require('dotenv');
 const fs = require('fs');
 
-const { utils } = require('./global');
+const { utils } = commons;
 const { TextChannel } = require('discord.js');
 
 dotenv.config();
-global.createClient();
+commons.createClient();
 
-const client = global.client;
+const client = commons.client;
 
-global.manager.loadCommands('./src/commands/');
-global.manager.loadEvents('./src/events/');
+commons.manager.loadCommands('./src/commands/');
+commons.manager.loadEvents('./src/events/');
 
 // starts the bot
 client.login(process.env.TOKEN);

@@ -72,42 +72,13 @@ exports.parseSchedule = function (data) {
     return new exports.Schedule(date, time, code, delivery, course, week, session, meeting);
 };
 
-// /**
-//  * Handles formatting a schedule
-//  * 
-//  * @param {Schedule} schedule the schedule
-//  */
-// exports.formatSchedule = function (schedule) {
-//     let array = [];
-
-//     for (let [key, value] of Object.entries(schedule)) {
-//         if (key === 'code')
-//             key = 'Class Code';
-//         else
-//             key = global.utils.capitalize(key);
-
-//         if (key === 'Meeting' && !value)
-//             value = 'No meeting';
-//         if (value instanceof Meeting) {
-//             array.push(`**Meeting ID:** ${value.id}`);
-//             array.push(`**Meeting Password:** ${value.password}`);
-//             array.push(`**Meeting URL:** ${value.url}`);
-//             continue;
-//         }
-
-//         array.push(`**${key} :** ${value}`);
-//     }
-
-//     return array.join('\n');
-// };
-
 /**
  * Handles formatting a schedule to an embed
  * 
  * @param {Schedule} schedule the schedule
  */
 exports.formatEmbedSchedule = function (schedule) {
-    const { client } = require('../global.js');
+    const { client } = require('../commons.js');
     const icon = client.user.displayAvatarURL();
 
     const embed = new MessageEmbed()

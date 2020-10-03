@@ -1,5 +1,5 @@
 const { MessageEmbed } = require('discord.js');
-const { command } = require('../global');
+const { command } = require('../commons');
 const util = require('util');
 
 /** @type {command} */
