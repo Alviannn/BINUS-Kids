@@ -13,7 +13,7 @@ const _schedule_result = {
     schedules: []
 };
 
-const _command_template = {
+const commandTemplate = {
     /** Command name */
     name: '',
     /** Command aliases */
@@ -45,9 +45,9 @@ module.exports = {
         });
     },
     /** The command template */
-    command: _command_template,
+    command: commandTemplate,
     manager: {
-        /** @type {Map<string, _command_template>} */
+        /** @type {Map<string, commandTemplate>} */
         commandMap: new Map(),
         /**
          * Loads all commands

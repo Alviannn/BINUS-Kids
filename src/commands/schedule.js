@@ -1,4 +1,5 @@
-const { command, utils } = require('../commons');
+const commons = require('../commons');
+const { command, utils } = commons;
 const { formatEmbedSchedule } = require('../objects/schedules');
 
 /** @type {command} */

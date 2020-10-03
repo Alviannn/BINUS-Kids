@@ -1,7 +1,7 @@
 const commons = require('../commons');
 
-const { MessageEmbed } = require('discord.js');
 const { command } = commons;
+const { MessageEmbed } = require('discord.js');
 
 /** @type {command} */
 module.exports = {

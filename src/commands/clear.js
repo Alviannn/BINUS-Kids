@@ -1,20 +1,24 @@
-const { command } = require('../commons');
+const commons = require('../commons');
+
+const { command } = commons;
 const { TextChannel } = require('discord.js');
 
 /** @type {command} */
 module.exports = {
     name: 'clear',
     aliases: ['purge'],
-    desc: 'Clears the messages',
+    desc: 'Clears a specified amount of messages',
     async execute(msg, args) {
         const { channel, member } = msg;
+        const config = require('../../config.json');
+
         if (!(channel instanceof TextChannel))
             return;
 
         if (!member.hasPermission('MANAGE_MESSAGES'))
             return await channel.send("You don't have enough permission!");
         if (!args[0])
-            return await channel.send('Invalid arguments!');
+            return await channel.send(`**Usage:** ${config.prefix}clear <amount of messages>`);
 
         let amount = 0;
         try {

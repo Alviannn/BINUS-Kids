@@ -1,12 +1,14 @@
-const { MessageEmbed } = require('discord.js');
-const { command } = require('../commons');
+const commons = require('../commons');
 const util = require('util');
+
+const { command } = commons;
+const { MessageEmbed } = require('discord.js');
 
 /** @type {command} */
 module.exports = {
     name: 'eval',
     aliases: ['evalutaion'],
-    desc: 'Tests JS codes',
+    desc: 'Evaluates JS codes live (debugging purposes)',
     async execute(msg, args) {
         const { channel, member, client, author } = msg;
 
