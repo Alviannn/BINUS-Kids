@@ -56,7 +56,7 @@ module.exports = {
             .setColor('RANDOM')
             .setThumbnail(client.user.displayAvatarURL())
             .addField('Name', cmd.name)
-            .addField('Aliases', `[${cmd.aliases.join(', ')}]`)
+            .addField('Aliases', `[${cmd.aliases ? cmd.aliases.join(', ') : ''}]`)
             .addField('Description', cmd.desc ? cmd.desc : '_No description_')
             .setFooter(`Executed by ${author.tag}`, author.displayAvatarURL());
 
