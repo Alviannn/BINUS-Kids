@@ -18,6 +18,3 @@ jobs:
 
       - name: Install dependencies
         run: yarn install
-
-      - name: Runs the NodeJS with Yarn
-        run: yarn start
