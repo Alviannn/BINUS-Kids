@@ -39,7 +39,7 @@ setInterval(async () => {
 
     /** Handles saving the last updated date */
     const saveLastUpdate = () => {
-        const currentMillis = utils.asiaMoment().unix();
+        const currentMillis = asiaMoment.valueOf();
         const temp = { last_update: currentMillis };
 
         fs.writeFileSync('./temp.json', JSON.stringify(temp), { encoding: 'utf8' });

@@ -154,9 +154,12 @@ module.exports = {
          * @param {Schedule[]} schedules the schedules
          */
         saveSchedules(schedules) {
+            const { utils } = module.exports;
+            const moment = utils.asiaMoment();
+
             /** @type {_schedule_result} */
             const finalData = {
-                last_save: Date.now(),
+                last_save: moment.valueOf(),
                 schedules: schedules
             };
 
