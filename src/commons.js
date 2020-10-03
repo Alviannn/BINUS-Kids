@@ -164,66 +164,86 @@ module.exports = {
             fs.writeFileSync('./schedules.json', dumped, { encoding: 'utf8' });
         },
         /**
-         * Reads the schedules
-         * 
-         * @returns {_schedule_result} the read results
+         * Handles grabbing the schedules
          */
-        readSchedules() {
-            if (!fs.existsSync('./schedules.json'))
-                return;
+        async getSchedules() {
+            /** Handles reading the schedules locally */
+            const read = () => {
+                if (!fs.existsSync('./schedules.json'))
+                    return;
 
-            const stream = fs.readFileSync('./schedules.json', { encoding: 'utf8' });
-            /** @type {_schedule_result} */
-            const rawObject = JSON.parse(stream);
+                const stream = fs.readFileSync('./schedules.json', { encoding: 'utf8' });
+                /** @type {_schedule_result} */
+                const rawObject = JSON.parse(stream);
 
-            let schedules = [];
-            const lastSave = rawObject.last_save;
+                let schedules = [];
+                const lastSave = rawObject.last_save;
 
-            for (const data of rawObject.schedules) {
-                let schedule = new Schedule();
-                Object.assign(schedule, data);
+                for (const data of rawObject.schedules) {
+                    let schedule = new Schedule();
+                    Object.assign(schedule, data);
 
-                schedules.push(schedule);
-            }
+                    schedules.push(schedule);
+                }
 
-            return { last_save: lastSave, schedules: schedules };
-        },
-        /**
-         * Grabs the schedules from the BINUS class schedules website
-         */
-        async fetchSchedules() {
-            const { parseSchedule } = require('./objects/schedules');
-            const { utils } = module.exports;
-
-            const loginData = {
-                'Username': process.env.BINUS_USER,
-                'Password': process.env.BINUS_PASS,
-                'btnSubmit': true
+                return { last_save: lastSave, schedules: schedules };
             };
 
-            let schedules = [];
-            try {
-                const agent = superagent.agent();
-                const loginRes = await agent.post('https://myclass.apps.binus.ac.id/Auth/Login')
-                    .send(loginData);
+            /** Handles fetching the class schedules */
+            const fetch = async () => {
+                const { parseSchedule } = require('./objects/schedules');
+                const { utils } = module.exports;
 
-                if (!loginRes.body['Status'])
+                const loginData = {
+                    'Username': process.env.BINUS_USER,
+                    'Password': process.env.BINUS_PASS,
+                    'btnSubmit': true
+                };
+
+                let schedules = [];
+                try {
+                    const agent = superagent.agent();
+                    const loginRes = await agent.post('https://myclass.apps.binus.ac.id/Auth/Login')
+                        .send(loginData);
+
+                    if (!loginRes.body['Status'])
+                        throw Error();
+
+                    const lastRes = await agent.get('https://myclass.apps.binus.ac.id/Home/GetViconSchedule');
+                    schedules = lastRes.body;
+                } catch (error) {
                     throw Error();
+                }
 
-                const lastRes = await agent.get('https://myclass.apps.binus.ac.id/Home/GetViconSchedule');
-                schedules = lastRes.body;
-            } catch (error) {
-                throw Error();
+                const scheduleList = [];
+                for (const clazz of schedules)
+                    scheduleList.push(parseSchedule(clazz));
+
+                utils.saveSchedules(scheduleList);
+                return scheduleList;
+            };
+
+            const { utils } = module.exports;
+            const moment = utils.moment();
+            const asiaMoment = utils.asiaMoment();
+
+            let schedules;
+            let readResult = read();
+
+            if (!readResult) {
+                await fetch();
+                readResult = read();
             }
 
-            const scheduleList = [];
-            for (const clazz of schedules) {
-                const schedule = parseSchedule(clazz);
-                scheduleList.push(schedule);
-            }
+            const lastSaveDate = moment(readResult.last_save).format('DD MMM YYYY');
+            const currentDate = asiaMoment.format('DD MMM YYYY');
 
-            utils.saveSchedules(scheduleList);
-            return scheduleList;
+            if (lastSaveDate !== currentDate)
+                schedules = await fetch();
+            else
+                schedules = readResult.schedules;
+
+            return schedules;
         }
     }
 };

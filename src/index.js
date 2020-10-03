@@ -22,6 +22,7 @@ setInterval(async () => {
 
     const dateFormat = 'DD MMM YYYY';
     const moment = utils.moment();
+    const asiaMoment = utils.asiaMoment();
 
     /** Determines if the schedules can be updated */
     const canUpdateSchedules = () => {
@@ -29,10 +30,11 @@ setInterval(async () => {
             return true;
 
         const { last_update } = require('../temp.json');
-        const currentMillis = utils.asiaMoment().unix();
 
-        const elapsedDays = Math.round(moment.duration(currentMillis - last_update, 'ms').asDays());
-        return elapsedDays !== 0;
+        const currentDate = asiaMoment.format(dateFormat);
+        const lastUpdateDate = moment(last_update).format(dateFormat);
+
+        return currentDate !== lastUpdateDate;
     };
 
     /** Handles saving the last updated date */
@@ -46,23 +48,16 @@ setInterval(async () => {
     if (!canUpdateSchedules())
         return;
 
-    const currentDate = utils.asiaMoment().format(dateFormat);
-    let schedules;
-
-    let result = utils.readSchedules();
-    if (!result)
-        schedules = await utils.fetchSchedules();
-    else if (currentDate !== moment(result.last_save).format(dateFormat))
-        schedules = await utils.fetchSchedules();
-    else
-        schedules = result.schedules;
-
+    let schedules = await utils.getSchedules();
     // don't continue if no schedules are found
+    // this is because the grabber failed to grab the schedules
     if (!schedules)
         return;
 
     const config = require('../config.json');
     const channel = client.channels.cache.get(config['schedules-channel']);
+    const currentDate = asiaMoment.format(dateFormat);
+    const { formatEmbedSchedule } = require('./objects/schedules');
 
     // schedules channel must exists and must be a text channel
     if (!channel || !(channel instanceof TextChannel))
@@ -70,7 +65,6 @@ setInterval(async () => {
 
     // deletes all messages on schedules channel
     await channel.bulkDelete(100);
-    const { formatEmbedSchedule } = require('./objects/schedules');
 
     // prints all schedules
     let foundSchedules = 0;
@@ -84,8 +78,9 @@ setInterval(async () => {
     }
 
     if (!foundSchedules)
-        return await channel.send('@everyone Yay! No schedules today!');
-    
-    await channel.send("@everyone Today schedules are here!");
+        await channel.send('@everyone Yay! No schedules today!');
+    else
+        await channel.send("@everyone Today schedules are here!");
+        
     saveLastUpdate();
 }, 120_000);

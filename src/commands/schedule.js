@@ -10,29 +10,8 @@ module.exports = {
     async execute(msg, args) {
         const { channel } = msg;
 
-        let results = utils.readSchedules();
-        if (!results) {
-            try {
-                results = await utils.fetchSchedules();
-            } catch (error) {
-                return channel.send('Failed to grab class schedules!');
-            }
-        }
-
         const moment = utils.moment();
-        const lastDate = moment(results.last_save).format('YYYY-MM-DD');
-        const currentDate = utils.asiaMoment().format('YYYY-MM-DD');
-
-        if (currentDate !== lastDate) {
-            try {
-                results = await utils.fetchSchedules();
-            } catch (error) {
-                return channel.send('Failed to grab class schedules!');
-            }
-        }
-
-        results = utils.readSchedules();
-        const { schedules } = results;
+        const schedules = await utils.getSchedules();
 
         if (!args[0]) {
             for (const schedule of schedules)
@@ -41,14 +20,15 @@ module.exports = {
             return;
         }
 
+        const dateFormat = 'DD MMM YYYY';
         switch (args[0]) {
             case 'today':
             case 'now': {
-                const currentFormatDate = moment().format('DD MMM YYYY');
+                const currentDate = moment().format(dateFormat);
 
                 let foundSchedule = 0;
                 for (const schedule of schedules) {
-                    if (schedule.date !== currentFormatDate)
+                    if (schedule.date !== currentDate)
                         continue;
 
                     await channel.send(formatEmbedSchedule(schedule));
@@ -64,11 +44,11 @@ module.exports = {
             case 'tomorrow':
             case 'next': {
                 const millis = moment.now();
-                const tomorrowFormatDate = moment(millis + moment.duration(1, 'day').as('ms')).format('DD MMM YYYY');
+                const tomorrowDate = moment(millis + moment.duration(1, 'day').as('ms')).format(dateFormat);
 
                 let foundSchedule = 0;
                 for (const schedule of schedules) {
-                    if (schedule.date !== tomorrowFormatDate)
+                    if (schedule.date !== tomorrowDate)
                         continue;
 
                     await channel.send(formatEmbedSchedule(schedule));
