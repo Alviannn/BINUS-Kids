@@ -20,7 +20,7 @@ setInterval(async () => {
     if (!client.guilds.cache.size)
         return;
 
-    const dateFormat = 'DD MMM YYYY';
+    const dateFormat = 'dd MMM yyyy';
     const asiaDate = times.asiaDate();
 
     /** Determines if the schedules can be updated */

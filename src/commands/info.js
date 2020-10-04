@@ -17,8 +17,9 @@ module.exports = {
             .setColor('AQUA')
             .setAuthor('Bot Information', client.user.displayAvatarURL())
             .setThumbnail(image)
-            .addField('Bot prefix', '`' + config.prefix + '`')
-            .addField('Bot author', 'Alvian#1341');
+            .addField('Prefix', '`' + config.prefix + '`')
+            .addField('Author', 'Alvian#1341')
+            .addField('Version', require('../../package.json').version);
 
         return await channel.send(embed);
     }

@@ -20,7 +20,7 @@ module.exports = {
             return;
         }
 
-        const dateFormat = 'DD MMM YYYY';
+        const dateFormat = 'dd MMM yyyy';
         switch (args[0]) {
             case 'today':
             case 'now': {
