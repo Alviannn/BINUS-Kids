@@ -31,7 +31,7 @@ setInterval(async () => {
         const { last_update } = require('../temp.json');
 
         const currentDate = asiaDate.toFormat(dateFormat);
-        const lastUpdateDate = times.fromMillisAsia(last_update).format(dateFormat);
+        const lastUpdateDate = times.fromMillisAsia(last_update).toFormat(dateFormat);
 
         return currentDate !== lastUpdateDate;
     };
