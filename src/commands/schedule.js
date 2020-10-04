@@ -1,5 +1,5 @@
 const commons = require('../commons');
-const { command, utils } = commons;
+const { command, utils, times } = commons;
 const { formatEmbedSchedule } = require('../objects/schedules');
 
 /** @type {command} */
@@ -10,7 +10,7 @@ module.exports = {
     async execute(msg, args) {
         const { channel } = msg;
 
-        const moment = utils.moment();
+        const asiaDate = times.asiaDate();
         const schedules = await utils.getSchedules();
 
         if (!args[0]) {
@@ -24,7 +24,7 @@ module.exports = {
         switch (args[0]) {
             case 'today':
             case 'now': {
-                const currentDate = moment().format(dateFormat);
+                const currentDate = asiaDate.toFormat(dateFormat);
 
                 let foundSchedule = 0;
                 for (const schedule of schedules) {
@@ -43,8 +43,7 @@ module.exports = {
             case 'tmr':
             case 'tomorrow':
             case 'next': {
-                const millis = moment.now();
-                const tomorrowDate = moment(millis + moment.duration(1, 'day').as('ms')).format(dateFormat);
+                const tomorrowDate = asiaDate.plus({ day: 1 }).toFormat(dateFormat);
 
                 let foundSchedule = 0;
                 for (const schedule of schedules) {

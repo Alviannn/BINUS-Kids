@@ -1,10 +1,10 @@
 {
   "name": "binus-kids-bot",
-  "version": "0.2.5",
+  "version": "0.2.6",
   "description": "BINUS@Bandung LC01 discord bot",
   "main": "src/index.js",
   "author": "Alviannn",
-  "license": "GNU AGPLv3",
+  "license": "GNU-AGPLv3",
   "repository": {
     "url": "https://github.com/Alviannn/BINUS-Kids"
   },
@@ -18,8 +18,7 @@
     "discord.js": "^12.3.1",
     "dotenv": "^8.2.0",
     "eslint": "^7.10.0",
-    "moment": "^2.29.0",
-    "moment-timezone": "^0.5.31",
+    "luxon": "^1.25.0",
     "superagent": "^6.1.0"
   }
 }

@@ -115,7 +115,7 @@ module.exports = {
             for (const cmd of commandMap.values()) {
                 if (cmd.name.toLowerCase() === name.toLowerCase())
                     return cmd;
-                
+
                 for (const alias of cmd.aliases) {
                     if (alias.toLowerCase() === name.toLowerCase())
                         return cmd;
@@ -125,9 +125,22 @@ module.exports = {
             return null;
         }
     },
-    /** The common utilities */
-    utils: {
-        _schedule_result: _schedule_result,
+    /** The common times utilities */
+    times: {
+        /** Gets the current asia date */
+        asiaDate() {
+            return require('luxon').DateTime.utc().setZone('Asia/Bangkok', { keepLocalTime: false });
+        },
+        /**
+         * Creates a date instance from millis (for Asia timezone)
+         * 
+         * @param {number} millis
+         */
+        fromMillisAsia(millis) {
+            return require('luxon').DateTime.fromMillis(millis, { zone: 'Asia/Bangkok' });
+        }
+    },
+    strings: {
         /**
          * Creates a spaces to be used within a word
          * 
@@ -160,27 +173,21 @@ module.exports = {
             const firstLetter = word[0].toUpperCase();
             return firstLetter + word.substr(1);
         },
-        /** Gets a new moment instanc */
-        moment() {
-            return require('moment-timezone');
-        },
-        /** Gets the Asia timezoned moment instance */
-        asiaMoment() {
-            const { utils } = module.exports;
-            return utils.moment().tz('Asia/Bangkok');
-        },
+    },
+    /** The common utilities */
+    utils: {
+        _schedule_result: _schedule_result,
         /**
          * Handles saving the schedules
          * 
          * @param {Schedule[]} schedules the schedules
          */
         saveSchedules(schedules) {
-            const { utils } = module.exports;
-            const moment = utils.asiaMoment();
+            const { times } = module.exports;
 
             /** @type {_schedule_result} */
             const finalData = {
-                last_save: moment.valueOf(),
+                last_save: times.asiaDate().toMillis(),
                 schedules: schedules
             };
 
@@ -192,7 +199,7 @@ module.exports = {
          */
         async getSchedules() {
             /** Handles reading the schedules locally */
-            const read = () => {
+            function read() {
                 if (!fs.existsSync('./schedules.json'))
                     return;
 
@@ -211,10 +218,10 @@ module.exports = {
                 }
 
                 return { last_save: lastSave, schedules: schedules };
-            };
+            }
 
             /** Handles fetching the class schedules */
-            const fetch = async () => {
+            async function fetch() {
                 const { parseSchedule } = require('./objects/schedules');
                 const { utils } = module.exports;
 
@@ -245,11 +252,9 @@ module.exports = {
 
                 utils.saveSchedules(scheduleList);
                 return scheduleList;
-            };
+            }
 
-            const { utils } = module.exports;
-            const moment = utils.moment();
-            const asiaMoment = utils.asiaMoment();
+            const { times } = module.exports;
 
             let schedules;
             let readResult = read();
@@ -259,8 +264,9 @@ module.exports = {
                 readResult = read();
             }
 
-            const lastSaveDate = moment(readResult.last_save).format('DD MMM YYYY');
-            const currentDate = asiaMoment.format('DD MMM YYYY');
+            const dateFormat = 'dd MMM yyyy';
+            const lastSaveDate = times.fromMillisAsia(readResult.last_save).toFormat(dateFormat);
+            const currentDate = times.asiaDate().toFormat(dateFormat);
 
             if (lastSaveDate !== currentDate)
                 schedules = await fetch();

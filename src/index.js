@@ -2,7 +2,7 @@ const commons = require('./commons');
 const dotenv = require('dotenv');
 const fs = require('fs');
 
-const { utils } = commons;
+const { utils, times } = commons;
 const { TextChannel } = require('discord.js');
 
 dotenv.config();
@@ -21,8 +21,7 @@ setInterval(async () => {
         return;
 
     const dateFormat = 'DD MMM YYYY';
-    const moment = utils.moment();
-    const asiaMoment = utils.asiaMoment();
+    const asiaDate = times.asiaDate();
 
     /** Determines if the schedules can be updated */
     const canUpdateSchedules = () => {
@@ -31,16 +30,15 @@ setInterval(async () => {
 
         const { last_update } = require('../temp.json');
 
-        const currentDate = asiaMoment.format(dateFormat);
-        const lastUpdateDate = moment(last_update).format(dateFormat);
+        const currentDate = asiaDate.toFormat(dateFormat);
+        const lastUpdateDate = times.fromMillisAsia(last_update).format(dateFormat);
 
         return currentDate !== lastUpdateDate;
     };
 
     /** Handles saving the last updated date */
     const saveLastUpdate = () => {
-        const currentMillis = asiaMoment.valueOf();
-        const temp = { last_update: currentMillis };
+        const temp = { last_update: asiaDate.toMillis() };
 
         fs.writeFileSync('./temp.json', JSON.stringify(temp), { encoding: 'utf8' });
     };
@@ -56,7 +54,7 @@ setInterval(async () => {
 
     const config = require('../config.json');
     const channel = client.channels.cache.get(config['schedules-channel']);
-    const currentDate = asiaMoment.format(dateFormat);
+    const currentDate = asiaDate.toFormat(dateFormat);
     const { formatEmbedSchedule } = require('./objects/schedules');
 
     // schedules channel must exists and must be a text channel
