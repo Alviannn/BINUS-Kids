@@ -22,6 +22,7 @@ setInterval(async () => {
 
     const dateFormat = 'dd MMM yyyy';
     const asiaDate = times.asiaDate();
+    const currentDate = asiaDate.toFormat(dateFormat);
 
     /** Determines if the schedules can be updated */
     const canUpdateSchedules = () => {
@@ -29,8 +30,6 @@ setInterval(async () => {
             return true;
 
         const { last_update } = require('../temp.json');
-
-        const currentDate = asiaDate.toFormat(dateFormat);
         const lastUpdateDate = times.fromMillisAsia(last_update).toFormat(dateFormat);
 
         return currentDate !== lastUpdateDate;
@@ -54,7 +53,6 @@ setInterval(async () => {
 
     const config = require('../config.json');
     const channel = client.channels.cache.get(config['schedules-channel']);
-    const currentDate = asiaDate.toFormat(dateFormat);
     const { formatEmbedSchedule } = require('./objects/schedules');
 
     // schedules channel must exists and must be a text channel

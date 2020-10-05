@@ -137,7 +137,7 @@ module.exports = {
          * @param {number} millis
          */
         fromMillisAsia(millis) {
-            return require('luxon').DateTime.fromMillis(millis, { zone: 'Asia/Bangkok' });
+            return require('luxon').DateTime.fromMillis(millis, { zone: 'Asia/Bangkok', setZone: true });
         }
     },
     strings: {
