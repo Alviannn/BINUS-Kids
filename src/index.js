@@ -25,22 +25,19 @@ setInterval(async () => {
     const currentDate = asiaDate.toFormat(dateFormat);
 
     /** Determines if the schedules can be updated */
-    const canUpdateSchedules = () => {
+    function canUpdateSchedules() {
         if (!fs.existsSync('./temp.json'))
             return true;
 
         const { last_update } = require('../temp.json');
-        const lastUpdateDate = times.fromMillisAsia(last_update).toFormat(dateFormat);
-
-        return currentDate !== lastUpdateDate;
-    };
+        return currentDate !== last_update;
+    }
 
     /** Handles saving the last updated date */
-    const saveLastUpdate = () => {
-        const temp = { last_update: asiaDate.toMillis() };
-
-        fs.writeFileSync('./temp.json', JSON.stringify(temp), { encoding: 'utf8' });
-    };
+    function saveLastUpdate() {
+        const tempObj = { last_update: currentDate };
+        fs.writeFileSync('./temp.json', JSON.stringify(tempObj), { encoding: 'utf8' });
+    }
 
     if (!canUpdateSchedules())
         return;

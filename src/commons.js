@@ -8,8 +8,10 @@ const path = require('path');
 const _schedule_result = {
     /** last save millis */
     last_save: 0,
-    /** the schedule list 
-     * @type {Schedule[]} */
+    /** 
+     * the schedule list 
+     * @type {Schedule[]} 
+     */
     schedules: []
 };
 
@@ -23,8 +25,8 @@ const commandTemplate = {
     /**
      * Executes the command
      * 
-     * @param {Message} msg 
-     * @param {string[]} args 
+     * @param {Message} msg the message instance
+     * @param {string[]} args the arguments
      */
     async execute(msg, args) { }
 };
@@ -127,9 +129,13 @@ module.exports = {
     },
     /** The common times utilities */
     times: {
+        /** Gets a date time instance */
+        dateTime() {
+            return require('luxon').DateTime;
+        },
         /** Gets the current asia date */
         asiaDate() {
-            return require('luxon').DateTime.utc().setZone('Asia/Bangkok', { keepLocalTime: false });
+            return this.dateTime().utc().setZone('Asia/Bangkok', { keepLocalTime: false });
         },
         /**
          * Creates a date instance from millis (for Asia timezone)
@@ -137,7 +143,7 @@ module.exports = {
          * @param {number} millis
          */
         fromMillisAsia(millis) {
-            return require('luxon').DateTime.fromMillis(millis, { zone: 'Asia/Bangkok', setZone: true });
+            return this.dateTime().fromMillis(millis, { zone: 'Asia/Bangkok', setZone: true });
         }
     },
     strings: {
