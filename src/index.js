@@ -1,8 +1,7 @@
 const commons = require('./commons');
 const dotenv = require('dotenv');
-const fs = require('fs');
 
-const { utils, times } = commons;
+const { schedules, times, files } = commons;
 const { TextChannel } = require('discord.js');
 
 dotenv.config();
@@ -26,26 +25,27 @@ setInterval(async () => {
 
     /** Determines if the schedules can be updated */
     function canUpdateSchedules() {
-        if (!fs.existsSync('./temp.json'))
+        const obj = files.readJson('./temp.json');
+        if (!obj)
             return true;
 
-        const { last_update } = require('../temp.json');
+        const { last_update } = obj;
         return currentDate !== last_update;
     }
 
     /** Handles saving the last updated date */
     function saveLastUpdate() {
         const tempObj = { last_update: currentDate };
-        fs.writeFileSync('./temp.json', JSON.stringify(tempObj), { encoding: 'utf8' });
+        files.saveJson('./temp.json', tempObj);
     }
 
     if (!canUpdateSchedules())
         return;
 
-    let schedules = await utils.getSchedules();
+    let scheduleList = await schedules.getSchedules();
     // don't continue if no schedules are found
     // this is because the grabber failed to grab the schedules
-    if (!schedules)
+    if (!scheduleList)
         return;
 
     const config = require('../config.json');
@@ -61,7 +61,7 @@ setInterval(async () => {
 
     // prints all schedules
     let foundSchedules = 0;
-    for (const schedule of schedules) {
+    for (const schedule of scheduleList) {
         if (schedule.date !== currentDate)
             continue;
 

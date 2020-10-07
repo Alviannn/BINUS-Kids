@@ -180,8 +180,37 @@ module.exports = {
             return firstLetter + word.substr(1);
         },
     },
+    files: {
+        /**
+         * Reads a JSON file and parses it
+         * 
+         * @param {fs.PathLike} filePath the file path
+         * @returns {object} the JSON object
+         */
+        readJson(filePath) {
+            if (!fs.existsSync(filePath))
+                return;
+
+            try {
+                const rawJson = fs.readFileSync(filePath, { encoding: 'utf-8' });
+                return JSON.parse(rawJson);
+            } catch (error) {
+                return;
+            }
+        },
+        /**
+         * Saves an object as a JSON file on a file
+         * 
+         * @param {fs.PathLike} filePath the file path
+         * @param {object} obj the object 
+         */
+        saveJson(filePath, obj) {
+            const json = JSON.stringify(obj, null, 4);
+            fs.writeFileSync(filePath, json, { encoding: 'utf-8' });
+        }
+    },
     /** The common utilities */
-    utils: {
+    schedules: {
         _schedule_result: _schedule_result,
         /**
          * Handles saving the schedules
@@ -229,7 +258,7 @@ module.exports = {
             /** Handles fetching the class schedules */
             async function fetch() {
                 const { parseSchedule } = require('./objects/schedules');
-                const { utils } = module.exports;
+                const { schedules } = module.exports;
 
                 const loginData = {
                     'Username': process.env.BINUS_USER,
@@ -237,7 +266,7 @@ module.exports = {
                     'btnSubmit': true
                 };
 
-                let schedules = [];
+                let rawSchedules = [];
                 try {
                     const agent = superagent.agent();
                     const loginRes = await agent.post('https://myclass.apps.binus.ac.id/Auth/Login')
@@ -247,16 +276,16 @@ module.exports = {
                         throw Error();
 
                     const lastRes = await agent.get('https://myclass.apps.binus.ac.id/Home/GetViconSchedule');
-                    schedules = lastRes.body;
+                    rawSchedules = lastRes.body;
                 } catch (error) {
                     throw Error();
                 }
 
                 const scheduleList = [];
-                for (const clazz of schedules)
+                for (const clazz of rawSchedules)
                     scheduleList.push(parseSchedule(clazz));
 
-                utils.saveSchedules(scheduleList);
+                schedules.saveSchedules(scheduleList);
                 return scheduleList;
             }
 
