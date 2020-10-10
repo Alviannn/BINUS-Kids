@@ -67,7 +67,7 @@ module.exports = {
                 const fullPath = path.join(cmdsPath, file);
 
                 // if another directory is found, do recursion
-                if (fs.lstatSync(file).isDirectory())
+                if (fs.lstatSync(fullPath).isDirectory())
                     this.loadCommands(fullPath);
                 // excludes invalid files
                 if (file.startsWith('_') || !file.endsWith('.js'))
@@ -100,7 +100,7 @@ module.exports = {
                 const fullPath = path.join(eventsPath, file);
 
                 // if another directory is found, do recursion
-                if (fs.lstatSync(file).isDirectory())
+                if (fs.lstatSync(fullPath).isDirectory())
                     this.loadCommands(fullPath);
                 // excludes invalid files
                 if (file.startsWith('_') || !file.endsWith('.js'))

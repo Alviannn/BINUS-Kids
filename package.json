@@ -1,6 +1,6 @@
 {
   "name": "binus-kids-bot",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "BINUS@Bandung LC01 discord bot",
   "main": "src/index.js",
   "author": "Alviannn",
