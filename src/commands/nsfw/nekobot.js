@@ -21,9 +21,9 @@ module.exports = {
             .setFooter('Thanks nekobot.xyz!', 'https://nekobot.xyz/apple-touch-icon.png');
 
         let query;
-        const queries = 'hass, hmidriff, pgif, 4k, hentai, holo, hneko, neko, hkitsune, kemonomimi, anal, '
+        const queries = ('hass, hmidriff, pgif, 4k, hentai, holo, hneko, neko, hkitsune, kemonomimi, anal, '
             + 'hanal, gonewild, kanna, ass, pussy, thigh, hthigh, gah, coffee, food, '
-            + 'paizuri, tentacle, boobs, hboobs'.split(', ');
+            + 'paizuri, tentacle, boobs, hboobs').split(', ');
 
         if (!args[0]) {
             return await channel.send('Invalid query!\nUsage: **nekobot [query type]**\nAvailable queries: `[' + queries.join(', ') + ']`');
