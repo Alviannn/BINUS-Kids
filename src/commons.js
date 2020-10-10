@@ -64,13 +64,18 @@ module.exports = {
 
             const commandMap = module.exports.manager.commandMap;
             for (const file of fs.readdirSync(cmdsPath)) {
+                const fullPath = path.join(cmdsPath, file);
+
+                // if another directory is found, do recursion
+                if (fs.lstatSync(file).isDirectory())
+                    this.loadCommands(fullPath);
                 // excludes invalid files
                 if (file.startsWith('_') || !file.endsWith('.js'))
                     continue;
 
                 // resolves the file path to command
                 // this is necessary for loading another JS files
-                const resolvedPath = path.resolve(path.join(cmdsPath, file));
+                const resolvedPath = path.resolve(fullPath);
                 /** @type _command_template */
                 const command = require(resolvedPath);
                 if (!command)
@@ -92,13 +97,18 @@ module.exports = {
                 throw Error("Events path isn't a folder/directory!");
 
             for (const file of fs.readdirSync(eventsPath)) {
+                const fullPath = path.join(eventsPath, file);
+
+                // if another directory is found, do recursion
+                if (fs.lstatSync(file).isDirectory())
+                    this.loadCommands(fullPath);
                 // excludes invalid files
                 if (file.startsWith('_') || !file.endsWith('.js'))
                     continue;
 
                 // resolves the file path to command
                 // this is necessary for loading another JS files
-                const resolvedPath = path.resolve(path.join(eventsPath, file));
+                const resolvedPath = path.resolve(fullPath);
                 // loads the events codes
                 require(resolvedPath);
 

@@ -69,6 +69,9 @@ exports.parseSchedule = function (data) {
     if (meetingUrl !== '-')
         meeting = new exports.Meeting(meetingId, meetingPassword, meetingUrl);
 
+    if (String(data['CourseCode']).includes('EESE'))
+        meeting = null;
+
     return new exports.Schedule(date, time, code, delivery, course, week, session, meeting);
 };
 
