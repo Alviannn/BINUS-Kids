@@ -17,7 +17,7 @@
   "dependencies": {
     "discord.js": "^12.3.1",
     "dotenv": "^8.2.0",
-    "eslint": "^7.10.0",
+    "eslint": "^7.13.0",
     "luxon": "^1.25.0",
     "superagent": "^6.1.0"
   },
