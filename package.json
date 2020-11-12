@@ -1,6 +1,6 @@
 {
   "name": "binus-kids-bot",
-  "version": "0.4.2",
+  "version": "0.4.3",
   "description": "BINUS@Bandung LC01 discord bot",
   "main": "src/index.js",
   "author": "Alviannn",
@@ -12,21 +12,14 @@
     "start": "node src/index.js"
   },
   "engines": {
-    "node": "12.x"
+    "node": "14.x"
   },
   "dependencies": {
+    "cheerio": "^1.0.0-rc.3",
     "discord.js": "^12.4.1",
     "dotenv": "^8.2.0",
     "eslint": "^7.13.0",
     "luxon": "^1.25.0",
     "superagent": "^6.1.0"
-  },
-  "devDependencies": {
-    "cheerio": "^1.0.0-rc.3",
-    "cookiejar": "^2.1.2",
-    "jsdom": "^16.4.0",
-    "puppeteer": "^5.4.1",
-    "request": "^2.88.2",
-    "request-promise": "^4.2.6"
   }
 }
