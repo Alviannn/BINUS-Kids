@@ -387,6 +387,7 @@ export namespace schedules {
         const schedules: Schedule[] = [];
 
         const LOGIN_URL = 'https://myclass.apps.binus.ac.id/Auth/Login';
+        const LOGOUT_URL = 'https://myclass.apps.binus.ac.id/Auth/Logout';
         const CLASSES_URL = 'https://myclass.apps.binus.ac.id/Home/GetViconSchedule';
 
         try {
@@ -412,6 +413,12 @@ export namespace schedules {
             }
         } catch (error) {
             console.error(error);
+        }
+
+        try {
+            await agent.get(LOGOUT_URL);
+        } catch (error) {
+            // fails to logout, who cares
         }
 
         saveSchedules(schedules);
