@@ -20,7 +20,7 @@ class ScheduleCommand extends Command {
 
         if (!args[0]) {
             const embed = new MessageEmbed()
-                .setAuthor('Schedule command usage', client.user!.displayAvatarURL())
+                .setAuthor('Schedule command usage')
                 .setColor('RANDOM')
                 .setDescription(
                     "Use `" + config.prefix + "schedule help` or not use any arguments at all"
@@ -41,12 +41,11 @@ class ScheduleCommand extends Command {
         }
 
         let foundSchedule = false;
+        const schedList = await schedules.getSchedules();
+
         switch (args[0]) {
             case 'today':
             case 'now': {
-                await channel.send('Fetching schedules...');
-                const schedList = await schedules.getSchedules();
-
                 for (const sched of schedList) {
                     if (sched.date !== currentDate)
                         continue;
@@ -64,9 +63,6 @@ class ScheduleCommand extends Command {
             case 'tomorrow':
             case 'besok':
             case 'next': {
-                await channel.send('Fetching schedules...');
-                const schedList = await schedules.getSchedules();
-
                 for (const sched of schedList) {
                     if (sched.date !== tomorrowDate)
                         continue;
@@ -83,9 +79,37 @@ class ScheduleCommand extends Command {
             case 'info':
             case 'how':
             case '?':
-            case 'tolong':
+            case 'tolong': {
                 await this.execute(msg, []);
                 break;
+            }
+            case 'dates':
+            case 'days':
+            case 'datelist':
+            case 'list': {
+                const dates = new Set<string>();
+
+                for (const sched of schedList) {
+                    if (dates.size >= 10)
+                        break;
+
+                    dates.add(sched.date);
+                }
+
+                const embed = new MessageEmbed()
+                    .setAuthor('All schedules (in dates)')
+                    .setDescription(
+                        '```\n - ' + Array.from(dates).join('\n- ') + '\n```'
+                        + '\n'
+                        + '\nYou can view the classes within a date by using'
+                        + '\n`' + config.prefix + 'schedule ' + dateFormat + '`'
+                        + '\n'
+                        + '\nExample: `' + config.prefix + 'schedule ' + currentDate + '`'
+                    ).setColor('RANDOM');
+
+                await channel.send(embed);
+                break;
+            }
             default: {
                 let foundDate: DateTime;
 
@@ -105,10 +129,6 @@ class ScheduleCommand extends Command {
                 }
 
                 const formattedDate = foundDate.toFormat(dateFormat);
-
-                await channel.send('Fetching schedules...');
-                const schedList = await schedules.getSchedules();
-
                 for (const sched of schedList) {
                     if (sched.date !== formattedDate)
                         continue;
