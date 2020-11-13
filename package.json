@@ -1,6 +1,6 @@
 {
   "name": "binus-kids-bot",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "BINUS@Bandung LC01 discord bot",
   "main": "dist/index.js",
   "author": "Alviannn",
@@ -20,9 +20,7 @@
     "eslint": "^7.13.0",
     "luxon": "^1.25.0",
     "superagent": "^6.1.0",
-    "typescript": "^4.0.5"
-  },
-  "devDependencies": {
+    "typescript": "^4.0.5",
     "@types/luxon": "^1.25.0",
     "@types/superagent": "^4.1.10"
   }
