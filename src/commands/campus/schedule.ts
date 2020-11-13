@@ -91,7 +91,7 @@ class ScheduleCommand extends Command {
 
                 try {
                     foundDate = DateTime.fromFormat(args.join(' '), dateFormat, { zone: 'Asia/Bangkok', setZone: true });
-                    if (!foundDate)
+                    if (!foundDate || !foundDate.isValid)
                         throw Error();
                 } catch (_) {
                     return await channel.send(

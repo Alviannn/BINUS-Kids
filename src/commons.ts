@@ -199,7 +199,7 @@ export namespace manager {
 
             if (!cmd.aliases)
                 continue;
-                
+
             // attempts to find the command by it's aliases
             for (const alias of cmd.aliases) {
                 if (alias.toLowerCase() === name.toLowerCase())
@@ -365,12 +365,15 @@ export namespace schedules {
             return null;
 
         try {
-            const schedules: Schedule[] = [];
+            const schedList: Schedule[] = [];
 
-            for (const data of rawData['schedules'])
-                schedules.push(parseSchedule(data));
+            for (const data of rawData.schedules) {
+                const sched = new Schedule('', '', '', '', '', 0, 0, null);
+                Object.assign(sched, data);
+                schedList.push(sched);
+            }
 
-            return { last_save: Number(rawData['last_save']), schedules };
+            return { last_save: Number(rawData.last_save), schedules: schedList };
         } catch (_) {
             return null;
         }
@@ -407,8 +410,8 @@ export namespace schedules {
                 const schedule: Schedule = parseSchedule(data);
                 schedules.push(schedule);
             }
-        } catch (_) {
-            // nothing
+        } catch (error) {
+            console.error(error);
         }
 
         saveSchedules(schedules);
