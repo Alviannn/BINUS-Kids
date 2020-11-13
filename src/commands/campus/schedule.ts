@@ -15,7 +15,6 @@ class ScheduleCommand extends Command {
         const dateFormat = 'dd MMM yyyy';
         const asiaDate = times.asiaDate();
 
-        const schedList = await schedules.getSchedules();
         const currentDate = asiaDate.toFormat(dateFormat);
         const tomorrowDate = asiaDate.plus({ days: 1 }).toFormat(dateFormat);
 
@@ -42,10 +41,12 @@ class ScheduleCommand extends Command {
         }
 
         let foundSchedule = false;
-
         switch (args[0]) {
             case 'today':
-            case 'now':
+            case 'now': {
+                const schedList = await schedules.getSchedules();
+                await channel.send('Fetching schedules...');
+
                 for (const sched of schedList) {
                     if (sched.date !== currentDate)
                         continue;
@@ -58,10 +59,14 @@ class ScheduleCommand extends Command {
                     await channel.send('No classes for today!');
 
                 break;
+            }
             case 'tmr':
             case 'tomorrow':
             case 'besok':
-            case 'next':
+            case 'next': {
+                const schedList = await schedules.getSchedules();
+                await channel.send('Fetching schedules...');
+
                 for (const sched of schedList) {
                     if (sched.date !== tomorrowDate)
                         continue;
@@ -73,6 +78,7 @@ class ScheduleCommand extends Command {
                 if (!foundSchedule)
                     await channel.send('No classes for tomorrow!');
                 break;
+            }
             case 'help':
             case 'info':
             case 'how':
@@ -99,6 +105,10 @@ class ScheduleCommand extends Command {
                 }
 
                 const formattedDate = foundDate.toFormat(dateFormat);
+
+                const schedList = await schedules.getSchedules();
+                await channel.send('Fetching schedules...');
+
                 for (const sched of schedList) {
                     if (sched.date !== formattedDate)
                         continue;

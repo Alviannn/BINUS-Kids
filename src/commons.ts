@@ -424,8 +424,8 @@ export namespace schedules {
             return await _fetchSchedules();
 
         const dateFormat = 'dd MMM yyyy';
-        const lastSaveDate = times.fromMillisAsia(result.last_save).toFormat(dateFormat);
         const currentDate = times.asiaDate().toFormat(dateFormat);
+        const lastSaveDate = times.fromMillisAsia(result.last_save).toFormat(dateFormat);
 
         if (lastSaveDate !== currentDate)
             return await _fetchSchedules();
