@@ -1,13 +1,9 @@
-const commons = require('../commons');
-const { command, manager } = commons;
-const { MessageEmbed } = require('discord.js');
+import { Message, MessageEmbed } from 'discord.js';
+import { Command, manager } from '../commons';
 
-/** @type {command} */
-module.exports = {
-    name: 'help',
-    aliases: [],
-    desc: 'Shows all available commands for users to use!',
-    async execute(msg, args) {
+class HelpCommand extends Command {
+
+    public async execute(msg: Message, args: string[]): Promise<any> {
         const { commandMap } = manager;
         const { author, client, channel } = msg;
 
@@ -19,7 +15,7 @@ module.exports = {
             const embed = new MessageEmbed()
                 .setAuthor('Available Commands')
                 .setColor('RANDOM')
-                .setThumbnail(client.user.displayAvatarURL())
+                .setThumbnail(client.user!.displayAvatarURL())
                 .setDescription(`${result.join(', ')}`)
                 .setFooter(`Executed by ${author.tag}`, author.displayAvatarURL());
 
@@ -35,7 +31,7 @@ module.exports = {
         const embed = new MessageEmbed()
             .setAuthor('Command Information')
             .setColor('RANDOM')
-            .setThumbnail(client.user.displayAvatarURL())
+            .setThumbnail(client.user!.displayAvatarURL())
             .addField('Name', command.name)
             .addField('Aliases', `[${command.aliases ? command.aliases.join(', ') : ''}]`)
             .addField('Description', command.desc ? command.desc : '_No description_')
@@ -43,4 +39,11 @@ module.exports = {
 
         return await channel.send(embed);
     }
-};
+
+}
+
+export const command = new HelpCommand(
+    'help',
+    [],
+    'Shows all available commands for users to use!'
+);

@@ -1,21 +1,18 @@
-const commons = require('../commons');
+/* eslint-disable @typescript-eslint/no-var-requires */
 
-const { command } = commons;
-const { TextChannel } = require('discord.js');
+import { Message, TextChannel } from 'discord.js';
+import { Command, Config } from '../commons';
 
-/** @type {command} */
-module.exports = {
-    name: 'clear',
-    aliases: ['purge'],
-    desc: 'Clears a specified amount of messages',
-    async execute(msg, args) {
+class ClearCommand extends Command {
+
+    public async execute(msg: Message, args: string[]): Promise<any> {
         const { channel, member } = msg;
-        const config = require('../../config.json');
+        const config: Config = require('../../config.json');
 
         if (!(channel instanceof TextChannel))
             return;
 
-        if (!member.hasPermission('MANAGE_MESSAGES'))
+        if (!member!.hasPermission('MANAGE_MESSAGES'))
             return await channel.send("You don't have enough permission!");
         if (!args[0])
             return await channel.send(`**Usage:** ${config.prefix}clear <amount of messages>`);
@@ -32,6 +29,13 @@ module.exports = {
 
         channel.bulkDelete(amount)
             .then(async (msgs) => await channel.send(`Successfully deleted ${msgs.size}/${amount} messages!`))
-            .catch(async (_) => await channel.send('Failed to clear messages!'));
+            .catch(async () => await channel.send('Failed to clear messages!'));
     }
-};
+
+}
+
+export const command = new ClearCommand(
+    'clear',
+    ['purge'],
+    'Clears a specified amount of messages'
+);

@@ -1,24 +1,22 @@
-const commons = require('../../commons');
+import { Message, TextChannel, MessageEmbed } from 'discord.js';
+import superagent from 'superagent';
+import { Command } from '../../commons';
 
-const { command } = commons;
-const { MessageEmbed } = require('discord.js');
-const superagent = require('superagent');
+class NekosLifeCommand extends Command {
 
-/** @type {command} */
-module.exports = {
-    name: 'nekoslife',
-    aliases: [],
-    desc: 'View (N)SFW content from nekos.life ( ͡° ͜ʖ ͡°)',
-    async execute(msg, args) {
+    public async execute(msg: Message, args: string[]): Promise<any> {
         const queries = ('femdom, tickle, classic, ngif, erofeet, meow, erok, '
-        + 'les, hololewd, lewdk, keta, feetg, nsfw_neko_gif, '
-        + 'eroyuri, kiss, kuni, tits, pussy_jpg, cum_jpg, pussy, lewdkemo, '
-        + 'slap, lewd, cum, cuddle, spank, smallboobs, Random_hentai_gif, avatar, fox_girl, '
-        + 'nsfw_avatar, hug, boobs, pat, feet, smug, kemonomimi, solog, holo, wallpaper, bj, '
-        + 'yuri, anal, baka, blowjob, holoero, feed, neko, gasm, hentai, '
-        + 'ero, solo, waifu, pwankg, eron, erokemo').split(', ');
+            + 'les, hololewd, lewdk, keta, feetg, nsfw_neko_gif, '
+            + 'eroyuri, kiss, kuni, tits, pussy_jpg, cum_jpg, pussy, lewdkemo, '
+            + 'slap, lewd, cum, cuddle, spank, smallboobs, Random_hentai_gif, avatar, fox_girl, '
+            + 'nsfw_avatar, hug, boobs, pat, feet, smug, kemonomimi, solog, holo, wallpaper, bj, '
+            + 'yuri, anal, baka, blowjob, holoero, feed, neko, gasm, hentai, '
+            + 'ero, solo, waifu, pwankg, eron, erokemo').split(', ');
 
         const { channel } = msg;
+        
+        if (!(channel instanceof TextChannel))
+            return;
         if (!channel.nsfw)
             return await channel.send('You can only execute this command within an NSFW channel!');
 
@@ -54,4 +52,11 @@ module.exports = {
             return await channel.send('Failed to get (N)SFW content :<');
         }
     }
-};
+
+}
+
+export const command = new NekosLifeCommand(
+    'nekoslife',
+    [],
+    'View (N)SFW content from nekos.life ( ͡° ͜ʖ ͡°)'
+);

@@ -1,15 +1,14 @@
-const commons = require('../../commons');
-const superagent = require('superagent');
-const { command } = commons;
-const { MessageEmbed } = require('discord.js');
+import { Message, MessageEmbed, TextChannel } from 'discord.js';
+import { Command } from '../../commons';
+import superagent from 'superagent';
 
-/** @type {command} */
-module.exports = {
-    name: 'nekobot',
-    aliases: [],
-    desc: 'View NSFW content from nekobot.xyz ( ͡° ͜ʖ ͡°)',
-    async execute(msg, args) {
+class NekobotCommand extends Command {
+
+    public async execute(msg: Message, args: string[]): Promise<any> {
         const { channel } = msg;
+
+        if (!(channel instanceof TextChannel))
+            return;
         if (!channel.nsfw)
             return await channel.send('You can only execute this command within an NSFW channel!');
 
@@ -49,4 +48,11 @@ module.exports = {
             return await channel.send('Failed to get NSFW content :<');
         }
     }
-};
+
+}
+
+export const command = new NekobotCommand(
+    'nekobot',
+    [],
+    'View NSFW content from nekobot.xyz ( ͡° ͜ʖ ͡°)'
+);

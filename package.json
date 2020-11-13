@@ -1,25 +1,29 @@
 {
   "name": "binus-kids-bot",
-  "version": "0.4.3",
+  "version": "1.0.0",
   "description": "BINUS@Bandung LC01 discord bot",
-  "main": "src/index.js",
+  "main": "dist/index.js",
   "author": "Alviannn",
   "license": "GNU-AGPLv3",
   "repository": {
-    "url": "https://github.com/Alviannn/BINUS-Kids"
+    "url": "https://github.com/Alviannn/BINUS-Kids/"
   },
   "scripts": {
-    "start": "node src/index.js"
-  },
-  "engines": {
-    "node": "14.x"
+    "start": "node clear.js && tsc && node dist/index.js"
   },
   "dependencies": {
+    "@typescript-eslint/eslint-plugin": "^4.7.0",
+    "@typescript-eslint/parser": "^4.7.0",
     "cheerio": "^1.0.0-rc.3",
     "discord.js": "^12.4.1",
     "dotenv": "^8.2.0",
     "eslint": "^7.13.0",
     "luxon": "^1.25.0",
-    "superagent": "^6.1.0"
+    "superagent": "^6.1.0",
+    "typescript": "^4.0.5"
+  },
+  "devDependencies": {
+    "@types/luxon": "^1.25.0",
+    "@types/superagent": "^4.1.10"
   }
 }

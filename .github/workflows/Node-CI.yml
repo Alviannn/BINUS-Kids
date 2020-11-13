@@ -18,3 +18,12 @@ jobs:
 
       - name: Install dependencies
         run: yarn install
+
+      - name: Cleans dist directory
+        run: node clear.js
+
+      - name: Compile TypeScript
+        run: tsc
+
+      - name: Cleans dist directory again
+        run: node clear.js
