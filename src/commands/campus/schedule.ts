@@ -99,7 +99,7 @@ class ScheduleCommand extends Command {
                 const embed = new MessageEmbed()
                     .setAuthor('All schedules (in dates)')
                     .setDescription(
-                        '```\n - ' + Array.from(dates).join('\n- ') + '\n```'
+                        '```\n- ' + Array.from(dates).join('\n- ') + '\n```'
                         + '\n'
                         + '\nYou can view the classes within a date by using'
                         + '\n`' + config.prefix + 'schedule ' + dateFormat + '`'
