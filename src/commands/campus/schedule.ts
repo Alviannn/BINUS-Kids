@@ -44,8 +44,8 @@ class ScheduleCommand extends Command {
         switch (args[0]) {
             case 'today':
             case 'now': {
-                const schedList = await schedules.getSchedules();
                 await channel.send('Fetching schedules...');
+                const schedList = await schedules.getSchedules();
 
                 for (const sched of schedList) {
                     if (sched.date !== currentDate)
@@ -64,8 +64,8 @@ class ScheduleCommand extends Command {
             case 'tomorrow':
             case 'besok':
             case 'next': {
-                const schedList = await schedules.getSchedules();
                 await channel.send('Fetching schedules...');
+                const schedList = await schedules.getSchedules();
 
                 for (const sched of schedList) {
                     if (sched.date !== tomorrowDate)
@@ -106,8 +106,8 @@ class ScheduleCommand extends Command {
 
                 const formattedDate = foundDate.toFormat(dateFormat);
 
-                const schedList = await schedules.getSchedules();
                 await channel.send('Fetching schedules...');
+                const schedList = await schedules.getSchedules();
 
                 for (const sched of schedList) {
                     if (sched.date !== formattedDate)
