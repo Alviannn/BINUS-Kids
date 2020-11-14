@@ -92,14 +92,14 @@ class ScheduleCommand extends Command {
                     if (dateSet.size >= 10)
                         break;
 
-                    dateSet.add(sched.date);
+                    dateSet.add(`- **${sched.date}**`);
                 }
 
                 const dateList = Array.from(dateSet);
                 const embed = new MessageEmbed()
                     .setAuthor('All schedules (in dates)')
                     .setDescription(
-                        '**- ' + dateList.join('**\n- ') + '**'
+                        dateList.join('\n')
                         + '\n'
                         + '\nYou can view the classes within a date by using'
                         + '\n`' + config.prefix + 'schedule ' + dateFormat + '`'
