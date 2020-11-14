@@ -1,5 +1,5 @@
 import { Message, TextChannel, MessageEmbed } from 'discord.js';
-import superagent from 'superagent';
+import got from 'got';
 import { Command } from '../../commons';
 
 class NekosLifeCommand extends Command {
@@ -20,9 +20,7 @@ class NekosLifeCommand extends Command {
         if (!channel.nsfw)
             return await channel.send('You can only execute this command within an NSFW channel!');
 
-        const agent = superagent.agent();
         const apiUrl = 'https://nekos.life/api/v2/img/';
-
         const embed = new MessageEmbed()
             .setTitle('NekosLife Images!')
             .setFooter('Thanks nekos.life!', 'https://nekos.life/static/icons/favicon-194x194.png');
@@ -41,8 +39,8 @@ class NekosLifeCommand extends Command {
             return await channel.send('Invalid query!\nUsage: **nekoslife [query type]**\nAvailable queries: `[' + queries.join(', ') + ']`');
 
         try {
-            const resp = await agent.get(apiUrl + query);
-            const { body } = resp;
+            const resp = await got.get(apiUrl + query);
+            const body = JSON.parse(resp.body);
 
             embed.setColor('RANDOM')
                 .setImage(body.url);
