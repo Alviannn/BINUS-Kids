@@ -87,19 +87,19 @@ class ScheduleCommand extends Command {
             case 'days':
             case 'datelist':
             case 'list': {
-                const dates = new Set<string>();
-
+                const dateSet = new Set<string>();
                 for (const sched of schedList) {
-                    if (dates.size >= 10)
+                    if (dateSet.size >= 10)
                         break;
 
-                    dates.add(sched.date);
+                    dateSet.add(sched.date);
                 }
 
+                const dateList = Array.from(dateSet);
                 const embed = new MessageEmbed()
                     .setAuthor('All schedules (in dates)')
                     .setDescription(
-                        '```\n- ' + Array.from(dates).join('\n- ') + '\n```'
+                        '**- ' + dateList.join('**\n- ') + '**'
                         + '\n'
                         + '\nYou can view the classes within a date by using'
                         + '\n`' + config.prefix + 'schedule ' + dateFormat + '`'

@@ -3,10 +3,15 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 
 import { Client, ClientUser, Message, MessageEmbed, PresenceData } from 'discord.js';
-import superagent from 'superagent';
 import fs from 'fs';
 import path from 'path';
 import { DateTime } from 'luxon';
+import { execall } from 'execall2';
+
+import got from 'got';
+import { CookieJar } from 'tough-cookie';
+import fetch from 'node-fetch';
+import cheerio from 'cheerio';
 
 export abstract class Command {
 
@@ -232,11 +237,22 @@ export namespace times {
 /** 
  * The common string utilities 
  */
-export namespace strings {
+export namespace utils {
 
     /** Capitalizes a word */
     export function capitalize(text: string): string {
         return text[0].toUpperCase() + text.substring(1);
+    }
+
+    /** 
+     * Copies map entires to another map
+     * 
+     * @param src the source map
+     * @param dest the destination map
+     */
+    export function copyMap(src: Map<any, any>, dest: Map<any, any>) {
+        for (const [key, value] of src)
+            dest.set(key, value);
     }
 
 }
@@ -383,7 +399,12 @@ export namespace schedules {
      * Fetches the schedules from the myclass binus website
      */
     export async function _fetchSchedules(): Promise<Schedule[]> {
-        const agent = superagent.agent();
+        const cookieJar = new CookieJar();
+
+        const session = got.extend({
+            cookieJar,
+            headers: { 'user-agent': 'Mozilla/5.0' }
+        });
         const schedules: Schedule[] = [];
 
         const LOGIN_URL = 'https://myclass.apps.binus.ac.id/Auth/Login';
@@ -391,18 +412,26 @@ export namespace schedules {
         const CLASSES_URL = 'https://myclass.apps.binus.ac.id/Home/GetViconSchedule';
 
         try {
-            const loginResp = await agent.post(LOGIN_URL)
-                .send({
-                    'Username': process.env.BINUS_USER,
-                    'Password': process.env.BINUS_PASS,
-                    'btnSubmit': true
-                });
+            const loginResp = await session.post(LOGIN_URL, {
+                json: {
+                    Username: process.env.BINUS_USER,
+                    Password: process.env.BINUS_PASS,
+                    btnSubmit: true
+                }
+            });
 
-            if (!loginResp.body['Status'])
+            let jsonBody: any;
+            try {
+                jsonBody = JSON.parse(loginResp.body);
+            } catch (_) {
+                throw Error('Failed to login to myclass binusmaya!');
+            }
+
+            if (!jsonBody['Status'])
                 throw Error('Failed to login to myclass binusmaya!');
 
-            const classesResp = await agent.get(CLASSES_URL);
-            const rawData = classesResp.body;
+            const classesResp = await session.get(CLASSES_URL);
+            const rawData = JSON.parse(classesResp.body);
 
             if (!(rawData instanceof Array))
                 throw Error('Failed to fetch schedules!');
@@ -416,9 +445,9 @@ export namespace schedules {
         }
 
         try {
-            await agent.get(LOGOUT_URL);
+            await session.get(LOGOUT_URL);
         } catch (error) {
-            // fails to logout, who cares
+            // program fails to logout, who cares
         }
 
         saveSchedules(schedules);
@@ -441,6 +470,107 @@ export namespace schedules {
             return await _fetchSchedules();
 
         return result.schedules;
+    }
+
+}
+
+export namespace cookies {
+
+    /** Converts a raw cookies to cookies (in map) */
+    export function listToCookies(raw: string[]) {
+        const cookiesMap = new Map<string, string>();
+        const rawBetter = raw.join('; ');
+
+        const matches = execall(/(PHPSESSID|_SID_BinusLogin_)=([^;\s]+)/g, rawBetter);
+        matches.forEach(match => cookiesMap.set(match[1], match[2]));
+
+        return cookiesMap;
+    }
+
+    /** Converts a cookies to string */
+    export function cookiesToString(cookies: Map<string, string>) {
+        const tempList: string[] = [];
+
+        for (const [key, value] of cookies)
+            tempList.push(`${key}=${value}`);
+
+        return tempList.join('; ');
+    }
+
+}
+
+export namespace binusmaya {
+
+    const URL = 'https://binusmaya.binus.ac.id';
+
+    const headers = {
+        'User-Agent': 'Mozilla/5.0',
+        'Origin': URL,
+        'Referer': URL + '/newStudent/',
+        'Cookie': ''
+    };
+
+    enum Status { SUCCESS, FAILED }
+
+    /** Login to binusmaya */
+    export async function login(): Promise<Status> {
+        const loginResp = await fetch(URL + '/login', {
+            headers, method: 'GET'
+        });
+        const content = await loginResp.text();
+
+        const cookieMap = cookies.listToCookies(loginResp.headers.raw()['set-cookie']);
+        headers['Cookie'] = cookies.cookiesToString(cookieMap);
+
+        const $ = cheerio.load(content);
+        const inputList = $('input').toArray();
+
+        const userId = inputList[0].attribs.name;
+        const passId = inputList[1].attribs.name;
+        const submId = inputList[2].attribs.name;
+
+        const loaderPage = $('script').toArray()[4].attribs.src.substr(2);
+        const loaderResp = await fetch(URL + loaderPage, {
+            method: 'GET', headers
+        });
+
+        const regex = /name="([^"]+)" value="([^"]+)"/g;
+        const matches = execall(regex, await loaderResp.text());
+
+        const csrf_one = [matches[0][1], matches[0][2]];
+        const csrf_two = [matches[1][1], matches[1][2]];
+
+        const params = new URLSearchParams();
+        params.append(userId, process.env.BINUS_USER!);
+        params.append(passId, process.env.BINUS_PASS!);
+        params.append(submId, 'Login');
+        params.append(csrf_one[0], csrf_one[1]);
+        params.append(csrf_two[0], csrf_two[1]);
+
+        const lastResp = await fetch(URL + '/login/sys_login.php', {
+            method: 'POST', headers, body: params
+        });
+
+        if (!lastResp.url.toLowerCase().includes('newstudent'))
+            return Status.FAILED;
+
+        return Status.SUCCESS;
+    }
+
+    /** Logout from binusmaya */
+    export async function logout(): Promise<Status> {
+        try {
+            await fetch(URL + 'services/ci/index.php/login/logout');
+            await fetch(URL + 'simplesaml/module.php/core/as_logout.php?AuthId=default-sp&ReturnTo=https%3A%2F%2Fbinusmaya.binus.ac.id%2Flogin');
+
+            return Status.SUCCESS;
+        } catch (_) {
+            return Status.FAILED;
+        }
+    }
+
+    export async function getAssignments(): Promise<Status> {
+        return Status.FAILED;
     }
 
 }
