@@ -1,13 +1,13 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 
 import { Message, TextChannel } from 'discord.js';
-import { Command, Config } from '../commons';
+import { Command, getConfig } from '../commons';
 
 class ClearCommand extends Command {
 
     public async execute(msg: Message, args: string[]): Promise<any> {
         const { channel, member } = msg;
-        const config: Config = require('../../config.json');
+        const config = getConfig();
 
         if (!(channel instanceof TextChannel))
             return;

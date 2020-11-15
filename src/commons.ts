@@ -1,3 +1,4 @@
+/* eslint-disable no-inner-declarations */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 /* eslint-disable @typescript-eslint/no-var-requires */
@@ -7,8 +8,9 @@ import fs from 'fs';
 import path from 'path';
 import { DateTime } from 'luxon';
 import { execall } from 'execall2';
+import sqlite from 'better-sqlite3';
 
-import got from 'got';
+import got, { Got } from 'got';
 import { CookieJar } from 'tough-cookie';
 import fetch from 'node-fetch';
 import cheerio from 'cheerio';
@@ -38,54 +40,28 @@ export abstract class Command {
 
 }
 
-export class Meeting {
-
-    public readonly id: string;
-    public readonly password: string;
-    public readonly url: string;
-
-    constructor(id: string, password: string, url: string) {
-        this.id = id;
-        this.password = password;
-        this.url = url;
-    }
-
+export type Meeting = {
+    id: string,
+    password: string,
+    url: string
 }
 
-export class Schedule {
-
-    public readonly date: string;
-    public readonly time: string;
-    public readonly code: string;
-    public readonly delivery: string;
-    public readonly course: string;
-    public readonly week: number;
-    public readonly session: number;
-    public readonly meeting: Meeting | null;
-
-    constructor(
-        date: string, time: string,
-        code: string, delivery: string, course: string,
-        week: number, session: number,
-        meeting: Meeting | null
-    ) {
-        this.date = date;
-        this.time = time;
-        this.code = code;
-        this.delivery = delivery;
-        this.course = course;
-        this.week = week;
-        this.session = session;
-        this.meeting = meeting;
-    }
-
+export type Schedule = {
+    date: string,
+    time: string,
+    code: string,
+    delivery: string,
+    course: string,
+    week: number,
+    session: number,
+    meeting: Meeting | null
 }
 
 export type NullableCommand = Command | null;
 
 export type ScheduleResult = {
-    /** Last timestamp where the program saved the schedules */
-    last_save: number,
+    /** Last fetch date */
+    last_fetch: string | null,
     /** All of the schedules */
     schedules: Schedule[]
 };
@@ -96,6 +72,16 @@ export type Config = {
 };
 
 export let client: Client;
+
+export enum Status { SUCCESS, FAILED }
+
+/**
+ * Gets the current config values
+ */
+export function getConfig(): Config {
+    const resolved = path.resolve('./config.json');
+    return require(resolved) as Config;
+}
 
 /** Handles creating a client object */
 export function createClient(): void {
@@ -109,6 +95,115 @@ export function createClient(): void {
 
     client = new Client({ presence: presenceData });
 }
+
+// ------------------------------------------------------------------------------------------------------------------------------------------------ //
+
+/** 
+ * The common database utilities 
+ */
+export namespace database {
+
+    export let socs_db: sqlite.Database;
+    export let schedules_db: sqlite.Database;
+
+    /** Sets up the necessary databases */
+    export function setupdb() {
+        const dirPath = './databases';
+
+        if (!fs.existsSync(dirPath))
+            fs.mkdirSync(dirPath);
+
+        socs_db = sqlite(dirPath + '/socs.db');
+        schedules_db = sqlite(dirPath + '/schedules.db');
+
+        socs_db.prepare('CREATE TABLE IF NOT EXISTS socs (id VARCHAR(128) NOT NULL, title VARCHAR(128) NOT NULL);')
+            .run();
+        socs_db.prepare('CREATE TABLE IF NOT EXISTS last_fetch (last_date VARCHAR(64) NOT NULL);')
+            .run();
+
+        schedules_db.prepare('CREATE TABLE IF NOT EXISTS schedules ('
+            + 'date VARCHAR(64) NOT NULL, '
+            + 'time VARCHAR(64) NOT NULL, '
+
+            + 'code VARCHAR(64) NOT NULL, '
+            + 'delivery VARCHAR(64) NOT NULL, '
+            + 'course VARCHAR(64) NOT NULL, '
+
+            + 'week INT NOT NULL, '
+            + 'session INT NOT NULL, '
+
+            // the meeting will be in form of json
+            + 'meeting VARCHAR(512)'
+            + ');').run();
+        schedules_db.prepare('CREATE TABLE IF NOT EXISTS auto_update (last_date VARCHAR(64) NOT NULL);')
+            .run();
+        schedules_db.prepare('CREATE TABLE IF NOT EXISTS last_fetch (last_date VARCHAR(64) NOT NULL);')
+            .run();
+    }
+
+    /** Closes all connected databases */
+    export function closeAll() {
+        try {
+            socs_db.close();
+        } catch (_) {
+            // do nothing
+        }
+
+        try {
+            schedules_db.close();
+        } catch (_) {
+            // do nothing
+        }
+    }
+
+    export function getLastFetchSocs(): string | null {
+        const data = socs_db.prepare('SELECT * FROM last_fetch;').get();
+        return data ? data['last_date'] : null;
+    }
+
+    export function setLastFetchSocs(date: string): void {
+        if (!date)
+            return;
+
+        if (!getLastFetchSocs())
+            socs_db.prepare('INSERT INTO last_fetch (last_date) VALUES (?);').run(date);
+        else
+            socs_db.prepare('UPDATE last_fetch SET last_date = ? WHERE last_date = ?;').run(date, date);
+    }
+
+    export function getLastFetchSchedule(): string | null {
+        const data = schedules_db.prepare('SELECT * FROM last_fetch;').get();
+        return data ? data['last_date'] : null;
+    }
+
+    export function setLastFetchSchedule(date: string): void {
+        if (!date)
+            return;
+
+        if (!getLastFetchSchedule())
+            schedules_db.prepare('INSERT INTO last_fetch (last_date) VALUES (?);').run(date);
+        else
+            schedules_db.prepare('UPDATE last_fetch SET last_date = ? WHERE last_date = ?;').run(date, date);
+    }
+
+    export function getLastAutoUpdateSchedule(): string | null {
+        const data = schedules_db.prepare('SELECT * FROM auto_update;').get();
+        return data ? data['last_date'] : null;
+    }
+
+    export function setLastAutoUpdateSchedule(date: string): void {
+        if (!date)
+            return;
+
+        if (!getLastFetchSchedule())
+            schedules_db.prepare('INSERT INTO auto_update (last_date) VALUES (?);').run(date);
+        else
+            schedules_db.prepare('UPDATE auto_update SET last_date = ? WHERE last_date = ?;').run(date, date);
+    }
+
+}
+
+// ------------------------------------------------------------------------------------------------------------------------------------------------ //
 
 /** 
  * The common management utilities 
@@ -217,10 +312,14 @@ export namespace manager {
 
 }
 
+// ------------------------------------------------------------------------------------------------------------------------------------------------ //
+
 /** 
  * The common times utilities 
  */
 export namespace times {
+
+    export const BINUS_DATE_FORMAT = 'dd MMM yyyy';
 
     /** Gets the current asia date */
     export function asiaDate(): DateTime {
@@ -234,65 +333,7 @@ export namespace times {
 
 }
 
-/** 
- * The common string utilities 
- */
-export namespace utils {
-
-    /** Capitalizes a word */
-    export function capitalize(text: string): string {
-        return text[0].toUpperCase() + text.substring(1);
-    }
-
-    /** 
-     * Copies map entires to another map
-     * 
-     * @param src the source map
-     * @param dest the destination map
-     */
-    export function copyMap(src: Map<any, any>, dest: Map<any, any>) {
-        for (const [key, value] of src)
-            dest.set(key, value);
-    }
-
-}
-
-/** 
- * The common files utilities 
- */
-export namespace files {
-
-    /**
-     * Reads a JSON file and parses it
-     * 
-     * @param {fs.PathLike} filePath the file path
-     * @returns {object} the JSON object
-     */
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    export function readJson(filePath: fs.PathLike): any | null {
-        if (!fs.existsSync(filePath))
-            return null;
-
-        try {
-            const rawJson = fs.readFileSync(filePath, { encoding: 'utf-8' });
-            return JSON.parse(rawJson);
-        } catch (_) {
-            return null;
-        }
-    }
-
-    /**
-     * Saves an object as a JSON file on a file
-     * 
-     * @param filePath the file path
-     * @param obj the object 
-     */
-    export function saveJson(filePath: fs.PathLike, obj: any): void {
-        const json = JSON.stringify(obj, null, 4);
-        fs.writeFileSync(filePath, json, { encoding: 'utf-8' });
-    }
-
-}
+// ------------------------------------------------------------------------------------------------------------------------------------------------ //
 
 /**
  * The common schedules utilities
@@ -300,7 +341,7 @@ export namespace files {
 export namespace schedules {
 
     /** Handles parsing a schedule class */
-    export function parseSchedule(data: any): Schedule {
+    export function parseSchedule(data: Record<string, unknown>): Schedule {
         const date = String(data['DisplayStartDate']);
         const time = `${data['StartTime']} - ${data['EndTime']}`;
 
@@ -318,11 +359,11 @@ export namespace schedules {
         let meeting: Meeting | null = null;
 
         if (meetingUrl !== '-')
-            meeting = new Meeting(meetingId, meetingPassword, meetingUrl);
+            meeting = { id: meetingId, password: meetingPassword, url: meetingUrl };
         if (String(data['CourseCode']).includes('EESE'))
             meeting = null;
 
-        return new Schedule(date, time, code, delivery, course, week, session, meeting);
+        return { date, time, code, delivery, course, week, session, meeting };
     }
 
     /** Handles formatting a schedule to an embed */
@@ -358,53 +399,64 @@ export namespace schedules {
     }
 
     /**
-     * Handles saving the schedules
-     * 
-     * @param schedules the schedules
+     * Handles saving the schedules to the database
      */
-    export function saveSchedules(schedules: Schedule[]): void {
-        const finalData: ScheduleResult = {
-            last_save: times.asiaDate().toMillis(),
-            schedules: schedules
-        };
+    function _saveSchedules(schedList: Schedule[], date: string) {
+        const { schedules_db, setLastFetchSchedule } = database;
 
-        const dumped = JSON.stringify(finalData, null, 4);
-        fs.writeFileSync('./schedules.json', dumped, { encoding: 'utf8' });
+        schedules_db.prepare('DELETE FROM schedules;').run();
+        schedList.forEach((sched) => {
+            schedules_db.prepare(
+                'INSERT INTO schedules '
+                + '(date, time, code, delivery, course, week, session, meeting)'
+                + ' VALUES '
+                + '(?, ?, ?, ?, ?, ?, ?, ?);'
+            ).run(
+                sched.date,
+                sched.time,
+
+                sched.code,
+                sched.delivery,
+                sched.course,
+
+                sched.week,
+                sched.session,
+
+                sched.meeting ? JSON.stringify(sched.meeting) : null
+            );
+        });
+
+        setLastFetchSchedule(date);
     }
 
     /**
-     * Reads the schedules from the saved file
+     * Reads the schedules from the database
      */
-    export function _readSchedules(): ScheduleResult | null {
-        const rawData = files.readJson('./schedules.json');
-        if (!rawData)
-            return null;
+    function _readSchedules(): ScheduleResult {
+        const { schedules_db, getLastFetchSchedule } = database;
 
-        try {
-            const schedList: Schedule[] = [];
+        const schedList: Schedule[] = [];
+        const tempList = schedules_db.prepare('SELECT * FROM schedules;').all();
 
-            for (const data of rawData.schedules) {
-                const sched = new Schedule('', '', '', '', '', 0, 0, null);
-                Object.assign(sched, data);
-                schedList.push(sched);
-            }
+        for (const temp of tempList) {
+            if (temp['meeting'])
+                temp['meeting'] = JSON.parse(temp['meeting']) as Meeting;
 
-            return { last_save: Number(rawData.last_save), schedules: schedList };
-        } catch (_) {
-            return null;
+            schedList.push(temp as Schedule);
         }
+
+        return { last_fetch: getLastFetchSchedule(), schedules: schedList };
     }
 
     /**
      * Fetches the schedules from the myclass binus website
      */
-    export async function _fetchSchedules(): Promise<Schedule[]> {
-        const cookieJar = new CookieJar();
-
+    async function _fetchSchedules(): Promise<Schedule[]> {
         const session = got.extend({
-            cookieJar,
+            cookieJar: new CookieJar(),
             headers: { 'user-agent': 'Mozilla/5.0' }
         });
+
         const schedules: Schedule[] = [];
 
         const LOGIN_URL = 'https://myclass.apps.binus.ac.id/Auth/Login';
@@ -450,7 +502,9 @@ export namespace schedules {
             // program fails to logout, who cares
         }
 
-        saveSchedules(schedules);
+        const currentDate = times.asiaDate().toFormat(times.BINUS_DATE_FORMAT);
+        _saveSchedules(schedules, currentDate);
+
         return schedules;
     }
 
@@ -462,9 +516,8 @@ export namespace schedules {
         if (!result)
             return await _fetchSchedules();
 
-        const dateFormat = 'dd MMM yyyy';
-        const currentDate = times.asiaDate().toFormat(dateFormat);
-        const lastSaveDate = times.fromMillisAsia(result.last_save).toFormat(dateFormat);
+        const currentDate = times.asiaDate().toFormat(times.BINUS_DATE_FORMAT);
+        const lastSaveDate = result.last_fetch;
 
         if (lastSaveDate !== currentDate)
             return await _fetchSchedules();
@@ -473,6 +526,8 @@ export namespace schedules {
     }
 
 }
+
+// ------------------------------------------------------------------------------------------------------------------------------------------------ //
 
 export namespace cookies {
 
@@ -499,22 +554,22 @@ export namespace cookies {
 
 }
 
+// ------------------------------------------------------------------------------------------------------------------------------------------------ //
+
 export namespace binusmaya {
 
-    const URL = 'https://binusmaya.binus.ac.id';
+    const BINMAY_URL = 'https://binusmaya.binus.ac.id';
 
     const headers = {
         'User-Agent': 'Mozilla/5.0',
-        'Origin': URL,
-        'Referer': URL + '/newStudent/',
+        'Origin': BINMAY_URL,
+        'Referer': BINMAY_URL + '/newStudent/',
         'Cookie': ''
     };
 
-    enum Status { SUCCESS, FAILED }
-
     /** Login to binusmaya */
     export async function login(): Promise<Status> {
-        const loginResp = await fetch(URL + '/login', {
+        const loginResp = await fetch(BINMAY_URL + '/login', {
             headers, method: 'GET'
         });
         const content = await loginResp.text();
@@ -530,7 +585,7 @@ export namespace binusmaya {
         const submId = inputList[2].attribs.name;
 
         const loaderPage = $('script').toArray()[4].attribs.src.substr(2);
-        const loaderResp = await fetch(URL + loaderPage, {
+        const loaderResp = await fetch(BINMAY_URL + loaderPage, {
             method: 'GET', headers
         });
 
@@ -547,7 +602,7 @@ export namespace binusmaya {
         params.append(csrf_one[0], csrf_one[1]);
         params.append(csrf_two[0], csrf_two[1]);
 
-        const lastResp = await fetch(URL + '/login/sys_login.php', {
+        const lastResp = await fetch(BINMAY_URL + '/login/sys_login.php', {
             method: 'POST', headers, body: params
         });
 
@@ -560,8 +615,10 @@ export namespace binusmaya {
     /** Logout from binusmaya */
     export async function logout(): Promise<Status> {
         try {
-            await fetch(URL + 'services/ci/index.php/login/logout');
-            await fetch(URL + 'simplesaml/module.php/core/as_logout.php?AuthId=default-sp&ReturnTo=https%3A%2F%2Fbinusmaya.binus.ac.id%2Flogin');
+            await fetch(BINMAY_URL + 'services/ci/index.php/login/logout', { method: 'GET', headers });
+            await fetch(BINMAY_URL + 'simplesaml/module.php/core/as_logout.php?AuthId=default-sp&ReturnTo=https%3A%2F%2Fbinusmaya.binus.ac.id%2Flogin', { method: 'GET', headers });
+
+            headers['Cookie'] = '';
 
             return Status.SUCCESS;
         } catch (_) {
@@ -572,5 +629,71 @@ export namespace binusmaya {
     export async function getAssignments(): Promise<Status> {
         return Status.FAILED;
     }
+
+}
+
+// ------------------------------------------------------------------------------------------------------------------------------------------------ //
+
+export namespace onlinejudge {
+
+    const SOCS_URL = 'https://socs1.binus.ac.id/';
+    let session: Got | null = null;
+
+    /** Resets the SOCS session */
+    export function _resetSession() {
+        session = got.extend({
+            headers: {
+                'User-Agent': 'Mozilla/5.0',
+                'Host': 'socs1.binus.ac.id',
+                'Origin': SOCS_URL,
+                'Referer': SOCS_URL + '/quiz/team/'
+            },
+            cookieJar: new CookieJar()
+        });
+    }
+
+    /** Login to the SOCS online judge */
+    async function login(): Promise<Status> {
+        if (!session)
+            _resetSession();
+
+        await session!.post(SOCS_URL + '/quiz/team/index.php', {
+            form: {
+                login: process.env.BINUS_USER + '@binus.ac.id',
+                passwd: process.env.BINUS_PASS,
+                cmd: 'login'
+            },
+            // it keeps redirecting us infinitely
+            // so disabling it and manually redirecting ourself is better
+            followRedirect: false
+        });
+
+        const resp = await session!.get(SOCS_URL + '/quiz/team');
+        const $ = cheerio.load(resp.body);
+
+        try {
+            const result = $('div[id="username"]').first();
+            if (!result || !result.text().includes('logged in'))
+                throw Error();
+
+            return Status.SUCCESS;
+        } catch (_) {
+            return Status.FAILED;
+        }
+    }
+
+    /** Logout from the SOCS online judge */
+    async function logout(): Promise<Status> {
+        try {
+            await session!.get(SOCS_URL + 'quiz/auth/logout.php');
+            _resetSession();
+
+            return Status.SUCCESS;
+        } catch (_) {
+            return Status.FAILED;
+        }
+    }
+
+    export async function getContests(): Promise<void> { }
 
 }

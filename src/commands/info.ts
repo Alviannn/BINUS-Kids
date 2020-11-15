@@ -1,21 +1,19 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 
 import { Message, MessageEmbed, version } from 'discord.js';
-import { Command, Config } from '../commons';
+import { Command, getConfig } from '../commons';
 
 class InfoCommand extends Command {
 
     public async execute(msg: Message): Promise<any> {
         const { channel, client } = msg;
-        const config: Config = require('../../config.json');
-
-        const image = 'https://image.psikolif.com/wp-content/uploads/2018/10/Logo-Binus-University-Universitas-Bina-Nusantara-Original-PNG-728x448.png';
+        const config = getConfig();
 
         const packageJson = require('../../package.json');
         const embed = new MessageEmbed()
             .setColor('AQUA')
             .setAuthor('Bot Information', client.user!.displayAvatarURL())
-            .setThumbnail(image)
+            .setThumbnail(client.user!.displayAvatarURL())
             .addField('Command Prefix', '`' + config.prefix + '`')
             .addField('Author', 'Alvian#1341')
             .addField('Version', packageJson.version)

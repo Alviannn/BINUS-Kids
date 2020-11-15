@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 
-import { client, manager, Config } from '../commons';
+import { client, manager, getConfig } from '../commons';
 
 client.on('message', async (msg) => {
     const { channel, content } = msg;
-    const config: Config = require('../../config.json');
+    const config = getConfig();
 
     // determines if a command supposed to be executed
     if (!content.startsWith(config.prefix))

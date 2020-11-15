@@ -2,7 +2,7 @@
 
 import { Message, MessageEmbed, TextChannel } from 'discord.js';
 import { DateTime } from 'luxon';
-import { Command, Config, schedules, times } from '../../commons';
+import { Command, schedules, times, getConfig } from '../../commons';
 
 class ScheduleCommand extends Command {
 
@@ -11,12 +11,11 @@ class ScheduleCommand extends Command {
         if (!(channel instanceof TextChannel))
             return;
 
-        const config: Config = require('../../../config.json');
-        const dateFormat = 'dd MMM yyyy';
+        const config = getConfig();
         const asiaDate = times.asiaDate();
 
-        const currentDate = asiaDate.toFormat(dateFormat);
-        const tomorrowDate = asiaDate.plus({ days: 1 }).toFormat(dateFormat);
+        const currentDate = asiaDate.toFormat(times.BINUS_DATE_FORMAT);
+        const tomorrowDate = asiaDate.plus({ days: 1 }).toFormat(times.BINUS_DATE_FORMAT);
 
         if (!args[0]) {
             const embed = new MessageEmbed()
@@ -43,7 +42,7 @@ class ScheduleCommand extends Command {
         let foundSchedule = false;
         const schedList = await schedules.getSchedules();
 
-        switch (args[0]) {
+        switch (args[0].toLowerCase()) {
             case 'today':
             case 'now': {
                 for (const sched of schedList) {
@@ -102,7 +101,7 @@ class ScheduleCommand extends Command {
                         dateList.join('\n')
                         + '\n'
                         + '\nYou can view the classes within a date by using'
-                        + '\n`' + config.prefix + 'schedule ' + dateFormat + '`'
+                        + '\n`' + config.prefix + 'schedule ' + times.BINUS_DATE_FORMAT + '`'
                         + '\n'
                         + '\nExample: `' + config.prefix + 'schedule ' + currentDate + '`'
                     ).setColor('RANDOM');
@@ -114,7 +113,7 @@ class ScheduleCommand extends Command {
                 let foundDate: DateTime;
 
                 try {
-                    foundDate = DateTime.fromFormat(args.join(' '), dateFormat, { zone: 'Asia/Bangkok', setZone: true });
+                    foundDate = DateTime.fromFormat(args.join(' '), times.BINUS_DATE_FORMAT, { zone: 'Asia/Bangkok', setZone: true });
                     if (!foundDate || !foundDate.isValid)
                         throw Error();
                 } catch (_) {
@@ -122,13 +121,13 @@ class ScheduleCommand extends Command {
                         'Cannot process the given arguments!'
                         + '\n'
                         + '\nIf you want to use a custom date format to get schedules'
-                        + '\nThen use the format of `' + dateFormat + '`!'
+                        + '\nThen use the format of `' + times.BINUS_DATE_FORMAT + '`!'
                         + '\n'
                         + '\nExample: `' + currentDate + '`'
                     );
                 }
 
-                const formattedDate = foundDate.toFormat(dateFormat);
+                const formattedDate = foundDate.toFormat(times.BINUS_DATE_FORMAT);
                 for (const sched of schedList) {
                     if (sched.date !== formattedDate)
                         continue;
