@@ -4,7 +4,7 @@ import got from 'got';
 
 class NekobotCommand extends Command {
 
-    public async execute(msg: Message, args: string[]): Promise<any> {
+    public async execute(msg: Message, args: string[]): Promise<unknown> {
         const { channel } = msg;
 
         if (!(channel instanceof TextChannel))

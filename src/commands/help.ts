@@ -3,7 +3,7 @@ import { Command, manager } from '../commons';
 
 class HelpCommand extends Command {
 
-    public async execute(msg: Message, args: string[]): Promise<any> {
+    public async execute(msg: Message, args: string[]): Promise<unknown> {
         const { commandMap } = manager;
         const { author, client, channel } = msg;
 

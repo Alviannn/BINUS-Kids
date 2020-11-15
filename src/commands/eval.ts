@@ -6,7 +6,7 @@ import util from 'util';
 
 class EvalCommand extends Command {
 
-    public async execute(msg: Message, args: string[]): Promise<any> {
+    public async execute(msg: Message, args: string[]): Promise<unknown> {
         const { channel, member, client, author } = msg;
 
         if (member!.id !== '217970261230747648')

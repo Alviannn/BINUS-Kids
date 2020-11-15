@@ -4,7 +4,7 @@ import { Command } from '../../commons';
 
 class NekosLifeCommand extends Command {
 
-    public async execute(msg: Message, args: string[]): Promise<any> {
+    public async execute(msg: Message, args: string[]): Promise<unknown> {
         const queries = ('femdom, tickle, classic, ngif, erofeet, meow, erok, '
             + 'les, hololewd, lewdk, keta, feetg, nsfw_neko_gif, '
             + 'eroyuri, kiss, kuni, tits, pussy_jpg, cum_jpg, pussy, lewdkemo, '

@@ -6,7 +6,7 @@ import { Command, schedules, times, getConfig } from '../../commons';
 
 class ScheduleCommand extends Command {
 
-    public async execute(msg: Message, args: string[]): Promise<any> {
+    public async execute(msg: Message, args: string[]): Promise<unknown> {
         const { channel, client } = msg;
         if (!(channel instanceof TextChannel))
             return;

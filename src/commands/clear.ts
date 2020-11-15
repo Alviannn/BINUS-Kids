@@ -5,7 +5,7 @@ import { Command, getConfig } from '../commons';
 
 class ClearCommand extends Command {
 
-    public async execute(msg: Message, args: string[]): Promise<any> {
+    public async execute(msg: Message, args: string[]): Promise<unknown> {
         const { channel, member } = msg;
         const config = getConfig();
 

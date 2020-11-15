@@ -36,7 +36,7 @@ export abstract class Command {
      * @param msg the message instance
      * @param args the arguments
      */
-    public abstract execute(msg: Message, args: string[]): Promise<any>
+    public abstract execute(msg: Message, args: string[]): Promise<unknown>
 
 }
 
@@ -639,8 +639,13 @@ export namespace onlinejudge {
     const SOCS_URL = 'https://socs1.binus.ac.id/';
     let session: Got | null = null;
 
+    type Result = {
+        status: Status,
+        contests: string[]
+    }
+
     /** Resets the SOCS session */
-    export function _resetSession() {
+    function _resetSession() {
         session = got.extend({
             headers: {
                 'User-Agent': 'Mozilla/5.0',
@@ -694,9 +699,54 @@ export namespace onlinejudge {
         }
     }
 
-    export async function getContests(): Promise<void> {
-        await login();
+    /**
+     * Gets the list of contest from SOCS or online judge
+     */
+    export async function getContests(): Promise<Result> {
+        const { socs_db, setLastFetchSocs, getLastFetchSocs } = database;
+
+        const currentDate = times.asiaDate().toFormat(times.BINUS_DATE_FORMAT);
+        const contestList: string[] = [];
+
+        // if the day where the last fetch to SOCS is the same as today
+        // then use the data from the database
+        if (currentDate === getLastFetchSocs()) {
+            const dataList = socs_db.prepare('SELECT title FROM socs;').all();
+            for (const data of dataList)
+                contestList.push(data['title']);
+
+            return { status: Status.SUCCESS, contests: contestList };
+        }
+
+        const loginStatus = await login();
+        // if the bot fails to login to the web, then cancel everything
+        if (loginStatus == Status.FAILED)
+            return { status: loginStatus, contests: [] };
+
+        const resp = await session!.get(SOCS_URL + '/quiz/team');
+        const $ = cheerio.load(resp.body);
+
+        // scrapes the socs titles
+        const rawContests = $('select[name="cid"][id="cid"]').first().children();
+
+        // clears the data on the db
+        socs_db.prepare('DELETE FROM socs;').run();
+
+        // iterates over all contest html
+        rawContests.each(function (this: unknown, _, elem) {
+            const id = elem.attribs['value'];
+            const title = $(this).text();
+
+            contestList.push(title);
+            socs_db.prepare('INSERT INTO socs (id, title) VALUES (?, ?);')
+                .run(id, title);
+        });
+
+        // updates the last fetch
+        setLastFetchSocs(currentDate);
+
         await logout();
+        return { status: Status.SUCCESS, contests: contestList };
     }
 
 }

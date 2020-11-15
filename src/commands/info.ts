@@ -5,7 +5,7 @@ import { Command, getConfig } from '../commons';
 
 class InfoCommand extends Command {
 
-    public async execute(msg: Message): Promise<any> {
+    public async execute(msg: Message): Promise<unknown> {
         const { channel, client } = msg;
         const config = getConfig();
 
@@ -20,7 +20,7 @@ class InfoCommand extends Command {
             .addField('discord.js', version)
             .addField('Source Code', `[Click here](${packageJson.repository.url})`);
 
-        await channel.send(embed);
+        return await channel.send(embed);
     }
 
 }
