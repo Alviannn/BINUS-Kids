@@ -195,7 +195,7 @@ export namespace database {
         if (!date)
             return;
 
-        if (!getLastFetchSchedule())
+        if (!getLastAutoUpdateSchedule())
             schedules_db.prepare('INSERT INTO auto_update (last_date) VALUES (?);').run(date);
         else
             schedules_db.prepare('UPDATE auto_update SET last_date = ? WHERE last_date = ?;').run(date, date);
