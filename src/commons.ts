@@ -694,6 +694,9 @@ export namespace onlinejudge {
         }
     }
 
-    export async function getContests(): Promise<void> { }
+    export async function getContests(): Promise<void> {
+        await login();
+        await logout();
+    }
 
 }
