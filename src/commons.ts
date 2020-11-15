@@ -673,7 +673,7 @@ export namespace onlinejudge {
             followRedirect: false
         });
 
-        const resp = await session!.get(SOCS_URL + '/quiz/team');
+        const resp = await session!.get(SOCS_URL + '/quiz/team/');
         const $ = cheerio.load(resp.body);
 
         try {

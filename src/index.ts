@@ -40,7 +40,8 @@ setInterval(async () => {
     // this is to prevent schedules re-post when the bot is updated at that day
     // this is happening because of Heroku not saving files every deployments 
     if (!database.getLastAutoUpdateSchedule()) {
-        const msgList = channel.messages.cache.array()
+        const msgs = channel.messages.cache ?? await channel.messages.fetch();
+        const msgList = msgs.array()
             .filter(m => m.author === client.user && m.content.includes('schedules') && m.content.includes('@everyone'));
 
         // if found messages where the bot had posted for auto updates
