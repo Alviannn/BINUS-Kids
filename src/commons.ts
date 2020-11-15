@@ -636,7 +636,7 @@ export namespace binusmaya {
 
 export namespace onlinejudge {
 
-    const SOCS_URL = 'https://socs1.binus.ac.id/';
+    const SOCS_URL = 'https://socs1.binus.ac.id';
     let session: Got | null = null;
 
     type Result = {
