@@ -723,7 +723,7 @@ export namespace onlinejudge {
         if (loginStatus == Status.FAILED)
             return { status: loginStatus, contests: [] };
 
-        const resp = await session!.get(SOCS_URL + '/quiz/team');
+        const resp = await session!.get(SOCS_URL + '/quiz/team/');
         const $ = cheerio.load(resp.body);
 
         // scrapes the socs titles
