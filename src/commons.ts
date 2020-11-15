@@ -158,7 +158,7 @@ export namespace database {
 
     export function getLastFetchSocs(): string | null {
         const data = socs_db.prepare('SELECT * FROM last_fetch;').get();
-        return data ? data['last_date'] : null;
+        return !data ? null : data['last_date'];
     }
 
     export function setLastFetchSocs(date: string): void {
@@ -173,7 +173,7 @@ export namespace database {
 
     export function getLastFetchSchedule(): string | null {
         const data = schedules_db.prepare('SELECT * FROM last_fetch;').get();
-        return data ? data['last_date'] : null;
+        return !data ? null : data['last_date'];
     }
 
     export function setLastFetchSchedule(date: string): void {
@@ -188,7 +188,7 @@ export namespace database {
 
     export function getLastAutoUpdateSchedule(): string | null {
         const data = schedules_db.prepare('SELECT * FROM auto_update;').get();
-        return data ? data['last_date'] : null;
+        return !data ? null : data['last_date'];
     }
 
     export function setLastAutoUpdateSchedule(date: string): void {
