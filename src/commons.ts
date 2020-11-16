@@ -567,58 +567,53 @@ export namespace binusmaya {
         'Cookie': ''
     };
 
-    /** Login to binusmaya */
-    export async function login(): Promise<Status> {
-        const loginResp = await fetch(BINMAY_URL + '/login', {
-            headers, method: 'GET'
-        });
-        const content = await loginResp.text();
-
-        const cookieMap = cookies.listToCookies(loginResp.headers.raw()['set-cookie']);
-        headers['Cookie'] = cookies.cookiesToString(cookieMap);
-
-        const $ = cheerio.load(content);
-        const inputList = $('input').toArray();
-
-        const userId = inputList[0].attribs.name;
-        const passId = inputList[1].attribs.name;
-        const submId = inputList[2].attribs.name;
-
-        const loaderPage = $('script').toArray()[4].attribs.src.substr(2);
-        const loaderResp = await fetch(BINMAY_URL + loaderPage, {
-            method: 'GET', headers
-        });
-
-        const regex = /name="([^"]+)" value="([^"]+)"/g;
-        const matches = execall(regex, await loaderResp.text());
-
-        const csrf_one = [matches[0][1], matches[0][2]];
-        const csrf_two = [matches[1][1], matches[1][2]];
-
-        const params = new URLSearchParams();
-        params.append(userId, process.env.BINUS_USER!);
-        params.append(passId, process.env.BINUS_PASS!);
-        params.append(submId, 'Login');
-        params.append(csrf_one[0], csrf_one[1]);
-        params.append(csrf_two[0], csrf_two[1]);
-
-        const lastResp = await fetch(BINMAY_URL + '/login/sys_login.php', {
-            method: 'POST', headers, body: params
-        });
-
-        if (!lastResp.url.toLowerCase().includes('newstudent'))
-            return Status.FAILED;
-
-        return Status.SUCCESS;
+    type Result = {
+        status: Status,
+        notifs: any[]
     }
 
-    /** Logout from binusmaya */
-    export async function logout(): Promise<Status> {
+    /** Login to binusmaya */
+    async function login(): Promise<Status> {
         try {
-            await fetch(BINMAY_URL + 'services/ci/index.php/login/logout', { method: 'GET', headers });
-            await fetch(BINMAY_URL + 'simplesaml/module.php/core/as_logout.php?AuthId=default-sp&ReturnTo=https%3A%2F%2Fbinusmaya.binus.ac.id%2Flogin', { method: 'GET', headers });
+            const loginResp = await fetch(BINMAY_URL + '/login', {
+                headers, method: 'GET'
+            });
+            const content = await loginResp.text();
 
-            headers['Cookie'] = '';
+            const cookieMap = cookies.listToCookies(loginResp.headers.raw()['set-cookie']);
+            headers['Cookie'] = cookies.cookiesToString(cookieMap);
+
+            const $ = cheerio.load(content);
+            const inputList = $('input').toArray();
+
+            const userId = inputList[0].attribs.name;
+            const passId = inputList[1].attribs.name;
+            const submId = inputList[2].attribs.name;
+
+            const loaderPage = $('script').toArray()[4].attribs.src.substr(2);
+            const loaderResp = await fetch(BINMAY_URL + loaderPage, {
+                method: 'GET', headers
+            });
+
+            const regex = /name="([^"]+)" value="([^"]+)"/g;
+            const matches = execall(regex, await loaderResp.text());
+
+            const csrf_one = [matches[0][1], matches[0][2]];
+            const csrf_two = [matches[1][1], matches[1][2]];
+
+            const params = new URLSearchParams();
+            params.append(userId, process.env.BINUS_USER!);
+            params.append(passId, process.env.BINUS_PASS!);
+            params.append(submId, 'Login');
+            params.append(csrf_one[0], csrf_one[1]);
+            params.append(csrf_two[0], csrf_two[1]);
+
+            const lastResp = await fetch(BINMAY_URL + '/login/sys_login.php', {
+                method: 'POST', headers, body: params
+            });
+
+            if (!lastResp.url.toLowerCase().includes('newstudent'))
+                return Status.FAILED;
 
             return Status.SUCCESS;
         } catch (_) {
@@ -626,8 +621,53 @@ export namespace binusmaya {
         }
     }
 
-    export async function getAssignments(): Promise<Status> {
-        return Status.FAILED;
+    /** Logout from binusmaya */
+    async function logout(): Promise<Status> {
+        try {
+            await fetch(BINMAY_URL + 'services/ci/index.php/login/logout', {
+                method: 'GET',
+                headers
+            });
+            await fetch(BINMAY_URL + 'simplesaml/module.php/core/as_logout.php?AuthId=default-sp&ReturnTo=https%3A%2F%2Fbinusmaya.binus.ac.id%2Flogin', {
+                method: 'GET',
+                headers
+            });
+
+            headers['Cookie'] = '';
+            return Status.SUCCESS;
+        } catch (_) {
+            return Status.FAILED;
+        }
+    }
+
+    /** Gets all binusmaya (unread) assignments */
+    export async function getAssignments(): Promise<Result> {
+        const loginStatus = await login();
+        // if the login failed then return failure status
+        if (loginStatus == Status.FAILED)
+            return { status: loginStatus, notifs: [] };
+
+        const resp = await fetch(BINMAY_URL + '/services/ci/index.php/notification/getUnreadNotificationList', {
+            method: 'POST',
+            headers
+        });
+
+        try {
+            const dataList: any[] = await resp.json();
+            try {
+                await logout();
+            } catch (_) {
+                // ignore error
+            }
+
+            return {
+                status: Status.SUCCESS,
+                // only accept assignments
+                notifs: dataList.filter(data => data['CategoryID'] === 'ASG')
+            };
+        } catch (_) {
+            return { status: Status.FAILED, notifs: [] };
+        }
     }
 
 }
@@ -659,24 +699,23 @@ export namespace onlinejudge {
 
     /** Login to the SOCS online judge */
     async function login(): Promise<Status> {
-        if (!session)
+        try {
             _resetSession();
 
-        await session!.post(SOCS_URL + '/quiz/team/index.php', {
-            form: {
-                login: process.env.BINUS_USER + '@binus.ac.id',
-                passwd: process.env.BINUS_PASS,
-                cmd: 'login'
-            },
-            // it keeps redirecting us infinitely
-            // so disabling it and manually redirecting ourself is better
-            followRedirect: false
-        });
+            await session!.post(SOCS_URL + '/quiz/team/index.php', {
+                form: {
+                    login: process.env.BINUS_USER + '@binus.ac.id',
+                    passwd: process.env.BINUS_PASS,
+                    cmd: 'login'
+                },
+                // it keeps redirecting us infinitely
+                // so disabling it and manually redirecting ourself is better
+                followRedirect: false
+            });
 
-        const resp = await session!.get(SOCS_URL + '/quiz/team/');
-        const $ = cheerio.load(resp.body);
+            const resp = await session!.get(SOCS_URL + '/quiz/team/');
+            const $ = cheerio.load(resp.body);
 
-        try {
             const result = $('div[id="username"]').first();
             if (!result || !result.text().includes('logged in'))
                 throw Error();
