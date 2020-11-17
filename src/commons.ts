@@ -168,7 +168,7 @@ export namespace database {
         if (!getLastFetchSocs())
             socs_db.prepare('INSERT INTO last_fetch (last_date) VALUES (?);').run(date);
         else
-            socs_db.prepare('UPDATE last_fetch SET last_date = ? WHERE last_date = ?;').run(date, date);
+            socs_db.prepare('UPDATE last_fetch SET last_date = ?;').run(date);
     }
 
     export function getLastFetchSchedule(): string | null {
@@ -183,7 +183,7 @@ export namespace database {
         if (!getLastFetchSchedule())
             schedules_db.prepare('INSERT INTO last_fetch (last_date) VALUES (?);').run(date);
         else
-            schedules_db.prepare('UPDATE last_fetch SET last_date = ? WHERE last_date = ?;').run(date, date);
+            schedules_db.prepare('UPDATE last_fetch SET last_date = ?;').run(date);
     }
 
     export function getLastAutoUpdateSchedule(): string | null {
@@ -198,7 +198,7 @@ export namespace database {
         if (!getLastAutoUpdateSchedule())
             schedules_db.prepare('INSERT INTO auto_update (last_date) VALUES (?);').run(date);
         else
-            schedules_db.prepare('UPDATE auto_update SET last_date = ? WHERE last_date = ?;').run(date, date);
+            schedules_db.prepare('UPDATE auto_update SET last_date = ?;').run(date);
     }
 
 }
