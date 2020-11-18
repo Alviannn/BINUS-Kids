@@ -57,6 +57,19 @@ export type Schedule = {
     meeting: Meeting | null
 }
 
+export type Notification = {
+    /** the notification id */
+    id: string,
+    /** the assignment title */
+    title: string,
+    /** the sender name */
+    sender: string,
+    /** the url/link to the assignment */
+    link: string,
+    /** the notification time */
+    time: string
+};
+
 export type NullableCommand = Command | null;
 
 export type ScheduleResult = {
@@ -68,7 +81,8 @@ export type ScheduleResult = {
 
 export type Config = {
     prefix: string,
-    schedules_channel: string
+    schedules_channel: string,
+    assignments_channel: string
 };
 
 export let client: Client;
@@ -156,49 +170,46 @@ export namespace database {
         }
     }
 
-    export function getLastFetchSocs(): string | null {
-        const data = socs_db.prepare('SELECT * FROM last_fetch;').get();
-        return !data ? null : data['last_date'];
+    export function lastFetchSocs(date: string | null = null): string | null {
+        if (!date) {
+            const data = socs_db.prepare('SELECT * FROM last_fetch;').get();
+            return !data ? null : data['last_date'];
+        } else {
+            if (!lastFetchSocs())
+                socs_db.prepare('INSERT INTO last_fetch (last_date) VALUES (?);').run(date);
+            else
+                socs_db.prepare('UPDATE last_fetch SET last_date = ?;').run(date);
+
+            return date;
+        }
     }
 
-    export function setLastFetchSocs(date: string): void {
-        if (!date)
-            return;
+    export function lastFetchSchedule(date: string | null = null): string | null {
+        if (!date) {
+            const data = schedules_db.prepare('SELECT * FROM last_fetch;').get();
+            return !data ? null : data['last_date'];
+        } else {
+            if (!lastFetchSchedule())
+                schedules_db.prepare('INSERT INTO last_fetch (last_date) VALUES (?);').run(date);
+            else
+                schedules_db.prepare('UPDATE last_fetch SET last_date = ?;').run(date);
 
-        if (!getLastFetchSocs())
-            socs_db.prepare('INSERT INTO last_fetch (last_date) VALUES (?);').run(date);
-        else
-            socs_db.prepare('UPDATE last_fetch SET last_date = ?;').run(date);
+            return date;
+        }
     }
 
-    export function getLastFetchSchedule(): string | null {
-        const data = schedules_db.prepare('SELECT * FROM last_fetch;').get();
-        return !data ? null : data['last_date'];
-    }
+    export function lastAutoUpdateSchedule(date: string | null = null): string | null {
+        if (!date) {
+            const data = schedules_db.prepare('SELECT * FROM auto_update;').get();
+            return !data ? null : data['last_date'];
+        } else {
+            if (!lastAutoUpdateSchedule())
+                schedules_db.prepare('INSERT INTO auto_update (last_date) VALUES (?);').run(date);
+            else
+                schedules_db.prepare('UPDATE auto_update SET last_date = ?;').run(date);
 
-    export function setLastFetchSchedule(date: string): void {
-        if (!date)
-            return;
-
-        if (!getLastFetchSchedule())
-            schedules_db.prepare('INSERT INTO last_fetch (last_date) VALUES (?);').run(date);
-        else
-            schedules_db.prepare('UPDATE last_fetch SET last_date = ?;').run(date);
-    }
-
-    export function getLastAutoUpdateSchedule(): string | null {
-        const data = schedules_db.prepare('SELECT * FROM auto_update;').get();
-        return !data ? null : data['last_date'];
-    }
-
-    export function setLastAutoUpdateSchedule(date: string): void {
-        if (!date)
-            return;
-
-        if (!getLastAutoUpdateSchedule())
-            schedules_db.prepare('INSERT INTO auto_update (last_date) VALUES (?);').run(date);
-        else
-            schedules_db.prepare('UPDATE auto_update SET last_date = ?;').run(date);
+            return date;
+        }
     }
 
 }
@@ -402,7 +413,7 @@ export namespace schedules {
      * Handles saving the schedules to the database
      */
     function _saveSchedules(schedList: Schedule[], date: string) {
-        const { schedules_db, setLastFetchSchedule } = database;
+        const { schedules_db, lastFetchSchedule } = database;
 
         schedules_db.prepare('DELETE FROM schedules;').run();
         schedList.forEach((sched) => {
@@ -426,14 +437,14 @@ export namespace schedules {
             );
         });
 
-        setLastFetchSchedule(date);
+        lastFetchSchedule(date);
     }
 
     /**
      * Reads the schedules from the database
      */
     function _readSchedules(): ScheduleResult {
-        const { schedules_db, getLastFetchSchedule } = database;
+        const { schedules_db, lastFetchSchedule } = database;
 
         const schedList: Schedule[] = [];
         const tempList = schedules_db.prepare('SELECT * FROM schedules;').all();
@@ -445,7 +456,7 @@ export namespace schedules {
             schedList.push(temp as Schedule);
         }
 
-        return { last_fetch: getLastFetchSchedule(), schedules: schedList };
+        return { last_fetch: lastFetchSchedule(), schedules: schedList };
     }
 
     /**
@@ -569,11 +580,11 @@ export namespace binusmaya {
 
     type Result = {
         status: Status,
-        notifs: any[]
+        notifs: Notification[]
     }
 
     /** Login to binusmaya */
-    async function login(): Promise<Status> {
+    export async function login(): Promise<Status> {
         try {
             const loginResp = await fetch(BINMAY_URL + '/login', {
                 headers, method: 'GET'
@@ -622,7 +633,7 @@ export namespace binusmaya {
     }
 
     /** Logout from binusmaya */
-    async function logout(): Promise<Status> {
+    export async function logout(): Promise<Status> {
         try {
             await fetch(BINMAY_URL + 'services/ci/index.php/login/logout', {
                 method: 'GET',
@@ -640,13 +651,23 @@ export namespace binusmaya {
         }
     }
 
-    /** Gets all binusmaya (unread) assignments */
-    export async function getAssignments(): Promise<Result> {
-        const loginStatus = await login();
-        // if the login failed then return failure status
-        if (loginStatus == Status.FAILED)
-            return { status: loginStatus, notifs: [] };
+    /** Determines if we still have the session to binusmaya or not */
+    export async function hasSession(): Promise<boolean> {
+        const resp = await fetch(BINMAY_URL + '/services/ci/index.php/staff/init/check_session', {
+            method: 'GET',
+            headers
+        });
 
+        try {
+            const data: Record<string, number> = JSON.parse(await resp.text());
+            return data['SessionStatus'] === 1;
+        } catch (_) {
+            return false;
+        }
+    }
+
+    /** Gets all binusmaya (unread) assignments */
+    export async function getUnreadAssignments(): Promise<Result> {
         const resp = await fetch(BINMAY_URL + '/services/ci/index.php/notification/getUnreadNotificationList', {
             method: 'POST',
             headers
@@ -654,19 +675,45 @@ export namespace binusmaya {
 
         try {
             const dataList: any[] = await resp.json();
-            try {
-                await logout();
-            } catch (_) {
-                // ignore error
+            const notifList: Notification[] = [];
+
+            for (const data of dataList) {
+                if (data['CategoryID'] !== 'ASG')
+                    continue;
+
+                const notif: Notification = {
+                    id: data['NotificationID'],
+                    link: data['Path'] + data['LinkID'],
+                    sender: data['From'],
+                    title: data['Title'],
+                    time: String(data['NotificationTime']).split(' , ').join(' - ')
+                };
+
+                notifList.push(notif);
             }
 
             return {
                 status: Status.SUCCESS,
                 // only accept assignments
-                notifs: dataList.filter(data => data['CategoryID'] === 'ASG')
+                notifs: notifList
             };
         } catch (_) {
             return { status: Status.FAILED, notifs: [] };
+        }
+    }
+
+    /** Reads a notification */
+    export async function readNotification(notif: Notification): Promise<Status> {
+        try {
+            await fetch(BINMAY_URL + 'services/ci/index.php/notification/readNotification', {
+                method: 'POST',
+                headers,
+                body: JSON.stringify({ NotificationID: notif.id })
+            });
+
+            return Status.SUCCESS;
+        } catch (_) {
+            return Status.FAILED;
         }
     }
 
@@ -742,14 +789,14 @@ export namespace onlinejudge {
      * Gets the list of contest from SOCS or online judge
      */
     export async function getContests(): Promise<Result> {
-        const { socs_db, setLastFetchSocs, getLastFetchSocs } = database;
+        const { socs_db, lastFetchSocs } = database;
 
         const currentDate = times.asiaDate().toFormat(times.BINUS_DATE_FORMAT);
         const contestList: string[] = [];
 
         // if the day where the last fetch to SOCS is the same as today
         // then use the data from the database
-        if (currentDate === getLastFetchSocs()) {
+        if (currentDate === lastFetchSocs()) {
             const dataList = socs_db.prepare('SELECT title FROM socs;').all();
             for (const data of dataList)
                 contestList.push(data['title']);
@@ -782,7 +829,7 @@ export namespace onlinejudge {
         });
 
         // updates the last fetch
-        setLastFetchSocs(currentDate);
+        lastFetchSocs(currentDate);
 
         await logout();
         return { status: Status.SUCCESS, contests: contestList };
