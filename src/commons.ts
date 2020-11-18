@@ -707,7 +707,10 @@ export namespace binusmaya {
         try {
             await fetch(BINMAY_URL + '/services/ci/index.php/notification/readNotification', {
                 method: 'POST',
-                headers,
+                headers: {
+                    ...headers,
+                    'Content-Type': 'application/json'
+                },
                 body: JSON.stringify({ 'NotificationID': notif.id })
             });
 
