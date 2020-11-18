@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
-import { client, getConfig } from '../commons';
+import { client, getConfig } from '../common/commons';
 
 client.on('message', async (msg) => {
     const { mentions, content, guild } = msg;

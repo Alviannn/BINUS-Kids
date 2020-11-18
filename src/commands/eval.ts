@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 
 import { Message, MessageEmbed } from 'discord.js';
-import { Command } from '../commons';
+import { Command } from '../common/commons';
 import util from 'util';
 
 class EvalCommand extends Command {

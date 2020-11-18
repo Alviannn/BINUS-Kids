@@ -3,13 +3,11 @@
 import { MessageEmbed, TextChannel } from 'discord.js';
 import dotenv from 'dotenv';
 import { DateTime } from 'luxon';
-import * as commons from './commons';
-import { Status } from './commons';
+import { createClient, times, schedules, client, manager, database, binusmaya, getConfig, Status } from './common/commons';
 
 dotenv.config();
-commons.createClient();
+createClient();
 
-const { times, schedules, client, manager, database, binusmaya } = commons;
 try {
     database.setupdb();
 } catch (_) {
@@ -27,7 +25,7 @@ setInterval(async () => {
     if (!client.guilds.cache.size)
         return;
 
-    const config = commons.getConfig();
+    const config = getConfig();
     const channel = client.channels.cache.get(config.schedules_channel);
 
     // schedules channel must exists and must be a text channel
@@ -95,7 +93,7 @@ setInterval(async () => {
     if (!client.guilds.cache.size)
         return;
 
-    const config = commons.getConfig();
+    const config = getConfig();
     const channel = client.channels.cache.get(config.assignments_channel);
 
     // schedules channel must exists and must be a text channel

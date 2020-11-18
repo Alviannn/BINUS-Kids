@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 
-import { client, manager, getConfig } from '../commons';
+import { client, getConfig, manager } from '../common/commons';
 
 client.on('message', async (msg) => {
     const { channel, content, author } = msg;

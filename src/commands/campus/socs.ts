@@ -1,5 +1,5 @@
 import { Message } from 'discord.js';
-import { Command, onlinejudge, Status } from '../../commons';
+import { Command, onlinejudge, Status } from '../../common/commons';
 
 class SocsCommand extends Command {
 

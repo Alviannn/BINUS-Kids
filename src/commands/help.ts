@@ -1,5 +1,5 @@
 import { Message, MessageEmbed } from 'discord.js';
-import { Command, manager } from '../commons';
+import { Command, manager } from '../common/commons';
 
 class HelpCommand extends Command {
 

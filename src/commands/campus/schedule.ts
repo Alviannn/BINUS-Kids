@@ -2,7 +2,7 @@
 
 import { Message, MessageEmbed, TextChannel } from 'discord.js';
 import { DateTime } from 'luxon';
-import { Command, schedules, times, getConfig } from '../../commons';
+import { Command, schedules, times, getConfig } from '../../common/commons';
 
 class ScheduleCommand extends Command {
 

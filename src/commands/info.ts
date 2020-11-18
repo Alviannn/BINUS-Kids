@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 
 import { Message, MessageEmbed, version } from 'discord.js';
-import { Command, getConfig } from '../commons';
+import { Command, getConfig } from '../common/commons';
 
 class InfoCommand extends Command {
 

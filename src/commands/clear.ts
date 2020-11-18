@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 
 import { Message, TextChannel } from 'discord.js';
-import { Command, getConfig } from '../commons';
+import { Command, getConfig } from '../common/commons';
 
 class ClearCommand extends Command {
 
