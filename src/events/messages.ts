@@ -7,8 +7,8 @@ client.on('message', async (msg) => {
     const config = getConfig();
 
     // prevents user from sending messages to some channels
-    if (author.id !== client.user!.id && (channel.id === config.schedules_channel || channel.id === config.assignments_channel)) {
-        await msg.delete({ timeout: 500 });
+    if ((author.id !== client.user!.id && author.id !== '217970261230747648') && (channel.id === config.schedules_channel || channel.id === config.assignments_channel)) {
+        await msg.delete({ timeout: 300 });
         return;
     }
 

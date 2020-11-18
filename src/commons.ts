@@ -685,7 +685,7 @@ export namespace binusmaya {
                     id: data['NotificationID'],
                     link: data['Path'] + data['LinkID'],
                     sender: data['From'],
-                    title: data['Title'],
+                    title: BINMAY_URL + '/' + data['Title'],
                     time: String(data['NotificationTime']).split(' , ').join(' - ')
                 };
 
@@ -705,7 +705,7 @@ export namespace binusmaya {
     /** Reads a notification */
     export async function readNotification(notif: Notification): Promise<Status> {
         try {
-            await fetch(BINMAY_URL + 'services/ci/index.php/notification/readNotification', {
+            await fetch(BINMAY_URL + '/services/ci/index.php/notification/readNotification', {
                 method: 'POST',
                 headers,
                 body: JSON.stringify({ NotificationID: notif.id })
