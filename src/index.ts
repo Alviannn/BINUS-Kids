@@ -138,8 +138,8 @@ setInterval(async () => {
 
         try {
             await binusmaya.readNotification(notif);
-        } catch (_) {
-            // ignore read errors
+        } catch (error) {
+            console.error(error);
         }
 
         foundAssignments = true;

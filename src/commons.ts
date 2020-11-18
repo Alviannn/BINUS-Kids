@@ -683,9 +683,9 @@ export namespace binusmaya {
 
                 const notif: Notification = {
                     id: data['NotificationID'],
-                    link: data['Path'] + data['LinkID'],
+                    link: BINMAY_URL + '/' + data['Path'] + data['LinkID'],
                     sender: data['From'],
-                    title: BINMAY_URL + '/' + data['Title'],
+                    title: data['Title'],
                     time: String(data['NotificationTime']).split(' , ').join(' - ')
                 };
 
@@ -708,7 +708,7 @@ export namespace binusmaya {
             await fetch(BINMAY_URL + '/services/ci/index.php/notification/readNotification', {
                 method: 'POST',
                 headers,
-                body: JSON.stringify({ NotificationID: notif.id })
+                body: JSON.stringify({ 'NotificationID': notif.id })
             });
 
             return Status.SUCCESS;
