@@ -3,7 +3,7 @@
 import { MessageEmbed, TextChannel } from 'discord.js';
 import dotenv from 'dotenv';
 import { DateTime } from 'luxon';
-import { createClient, times, schedules, client, manager, database, binusmaya, getConfig, Status } from './common/commons';
+import { createClient, times, schedules, client, manager, database, binusmaya, getConfig, Status, Config } from './common/commons';
 
 dotenv.config();
 createClient();
@@ -88,27 +88,11 @@ setInterval(async () => {
     database.lastAutoUpdateSchedule(currentDate);
 }, 120_000);
 
-// class assignment task (runs every 10 mins)
-setInterval(async () => {
-    if (!client.guilds.cache.size)
-        return;
-
-    const config = getConfig();
+async function postAssignments(config: Config) {
     const channel = client.channels.cache.get(config.assignments_channel);
-
     // schedules channel must exists and must be a text channel
     if (!channel || !(channel instanceof TextChannel))
         return;
-
-    const hasSession = await binusmaya.hasSession();
-    if (!hasSession) {
-        const loginStatus = await binusmaya.login();
-
-        if (loginStatus === Status.FAILED) {
-            await channel.send('Failed to login to binusmaya!');
-            return;
-        }
-    }
 
     const { status, notifs } = await binusmaya.getUnreadAssignments();
     if (status === Status.FAILED) {
@@ -133,16 +117,67 @@ setInterval(async () => {
             .addField('**URL**', `[Click here](${notif.link})`);
 
         await channel.send(embed);
-
-        try {
-            await binusmaya.readNotification(notif);
-        } catch (error) {
-            console.error(error);
-        }
+        await binusmaya.readNotification(notif);
 
         foundAssignments = true;
     }
 
     if (foundAssignments)
         await channel.send("@everyone I found assignments!");
+}
+
+async function postForums(config: Config) {
+    const channel = client.channels.cache.get(config.forums_channel);
+    // schedules channel must exists and must be a text channel
+    if (!channel || !(channel instanceof TextChannel))
+        return;
+
+    const { status, notifs } = await binusmaya.getUnreadAssignments();
+    if (status === Status.FAILED) {
+        await channel.send('Failed to fetch assignments from binusmaya!');
+        return;
+    }
+    if (!notifs)
+        return;
+
+    let foundAssignments = false;
+    for (const notif of notifs) {
+        const user = client.user!;
+        const icon = user.displayAvatarURL();
+
+        const embed = new MessageEmbed()
+            .setAuthor(notif.title, icon)
+            .setThumbnail(icon)
+            .setColor('RANDOM')
+
+            .addField('**Sender**', notif.sender)
+            .addField('**Date**', notif.time)
+            .addField('**URL**', `[Click here](${notif.link})`);
+
+        await channel.send(embed);
+        await binusmaya.readNotification(notif);
+
+        foundAssignments = true;
+    }
+
+    if (foundAssignments)
+        await channel.send("@everyone I found forums!");
+}
+
+// binusmaya post task (runs every 10 mins)
+setInterval(async () => {
+    if (!client.guilds.cache.size)
+        return;
+
+    const hasSession = await binusmaya.hasSession();
+    if (!hasSession) {
+        const loginStatus = await binusmaya.login();
+        if (loginStatus === Status.FAILED)
+            return;
+    }
+
+    const config = getConfig();
+
+    await postAssignments(config);
+    await postForums(config);
 }, 600_000);

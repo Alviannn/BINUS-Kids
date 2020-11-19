@@ -67,7 +67,8 @@ export type ScheduleResult = {
 export type Config = {
     prefix: string,
     schedules_channel: string,
-    assignments_channel: string
+    assignments_channel: string,
+    forums_channel: string
 };
 
 export enum Status { SUCCESS, FAILED }

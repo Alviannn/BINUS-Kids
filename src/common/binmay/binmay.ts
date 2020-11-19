@@ -21,11 +21,14 @@ export namespace binusmaya {
         notifs: Notification[]
     }
 
-    /** Login to binusmaya */
+    /** 
+     * Login to binusmaya 
+     */
     export async function login(): Promise<Status> {
         try {
             const loginResp = await fetch(BINMAY_URL + '/login', {
-                headers, method: 'GET'
+                headers,
+                method: 'GET'
             });
             const content = await loginResp.text();
 
@@ -67,12 +70,13 @@ export namespace binusmaya {
             return Status.SUCCESS;
         } catch (e) {
             console.log('ERROR: Logging in to binusmaya!');
-            console.error(e); 
             return Status.FAILED;
         }
     }
 
-    /** Logout from binusmaya */
+    /** 
+     * Logout from binusmaya
+     */
     export async function logout(): Promise<Status> {
         try {
             await fetch(BINMAY_URL + 'services/ci/index.php/login/logout', {
@@ -88,12 +92,13 @@ export namespace binusmaya {
             return Status.SUCCESS;
         } catch (e) {
             console.log('ERROR: Logging out from binusmaya!');
-            console.error(e);
             return Status.FAILED;
         }
     }
 
-    /** Determines if we still have the session to binusmaya or not */
+    /** 
+     * Determines if we still have the session to binusmaya or not 
+     */
     export async function hasSession(): Promise<boolean> {
         const resp = await fetch(BINMAY_URL + '/services/ci/index.php/staff/init/check_session', {
             method: 'GET',
@@ -105,12 +110,13 @@ export namespace binusmaya {
             return data['SessionStatus'] === 1;
         } catch (e) {
             console.log('ERROR: Checking binusmaya session!');
-            console.error(e);
             return false;
         }
     }
 
-    /** Gets all binusmaya (unread) assignments */
+    /** 
+     * Gets all binusmaya (unread) assignments 
+     */
     export async function getUnreadAssignments(): Promise<Result> {
         const resp = await fetch(BINMAY_URL + '/services/ci/index.php/notification/getUnreadNotificationList', {
             method: 'POST',
@@ -138,17 +144,55 @@ export namespace binusmaya {
 
             return {
                 status: Status.SUCCESS,
-                // only accept assignments
                 notifs: notifList
             };
         } catch (e) {
             console.log('ERROR: Reading unread assignments!');
-            console.error(e);
             return { status: Status.FAILED, notifs: [] };
         }
     }
 
-    /** Reads a notification */
+    /** 
+     * Gets all binusmaya (unread) forums 
+     */
+    export async function getUnreadForums(): Promise<Result> {
+        const resp = await fetch(BINMAY_URL + '/services/ci/index.php/notification/getUnreadNotificationList', {
+            method: 'POST',
+            headers
+        });
+
+        try {
+            const dataList: any[] = await resp.json();
+            const notifList: Notification[] = [];
+
+            for (const data of dataList) {
+                if (data['CategoryID'] !== 'FRM')
+                    continue;
+
+                const notif: Notification = {
+                    id: data['NotificationID'],
+                    link: BINMAY_URL + '/' + data['Path'] + data['LinkID'] + '?id=1',
+                    sender: data['From'] ? data['From'] : 'Unknown',
+                    title: data['Title'],
+                    time: String(data['NotificationTime']).split(' , ').join(' - ')
+                };
+
+                notifList.push(notif);
+            }
+
+            return {
+                status: Status.SUCCESS,
+                notifs: notifList
+            };
+        } catch (e) {
+            console.log('ERROR: Reading unread forums!');
+            return { status: Status.FAILED, notifs: [] };
+        }
+    }
+
+    /** 
+     * Reads a notification 
+     */
     export async function readNotification(notif: Notification): Promise<Status> {
         try {
             await fetch(BINMAY_URL + '/services/ci/index.php/notification/readNotification', {
@@ -163,7 +207,6 @@ export namespace binusmaya {
             return Status.SUCCESS;
         } catch (e) {
             console.log('ERROR: Reading notifications!');
-            console.error(e);
             return Status.FAILED;
         }
     }
