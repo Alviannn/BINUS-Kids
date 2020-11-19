@@ -65,7 +65,9 @@ export namespace binusmaya {
                 return Status.FAILED;
 
             return Status.SUCCESS;
-        } catch (_) {
+        } catch (e) {
+            console.log('ERROR: Logging in to binusmaya!');
+            console.error(e); 
             return Status.FAILED;
         }
     }
@@ -84,7 +86,9 @@ export namespace binusmaya {
 
             headers['Cookie'] = '';
             return Status.SUCCESS;
-        } catch (_) {
+        } catch (e) {
+            console.log('ERROR: Logging out from binusmaya!');
+            console.error(e);
             return Status.FAILED;
         }
     }
@@ -99,7 +103,9 @@ export namespace binusmaya {
         try {
             const data: Record<string, number> = JSON.parse(await resp.text());
             return data['SessionStatus'] === 1;
-        } catch (_) {
+        } catch (e) {
+            console.log('ERROR: Checking binusmaya session!');
+            console.error(e);
             return false;
         }
     }
@@ -135,7 +141,9 @@ export namespace binusmaya {
                 // only accept assignments
                 notifs: notifList
             };
-        } catch (_) {
+        } catch (e) {
+            console.log('ERROR: Reading unread assignments!');
+            console.error(e);
             return { status: Status.FAILED, notifs: [] };
         }
     }
@@ -153,7 +161,9 @@ export namespace binusmaya {
             });
 
             return Status.SUCCESS;
-        } catch (_) {
+        } catch (e) {
+            console.log('ERROR: Reading notifications!');
+            console.error(e);
             return Status.FAILED;
         }
     }
