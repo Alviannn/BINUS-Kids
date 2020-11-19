@@ -132,7 +132,7 @@ async function postForums(config: Config) {
     if (!channel || !(channel instanceof TextChannel))
         return;
 
-    const { status, notifs } = await binusmaya.getUnreadAssignments();
+    const { status, notifs } = await binusmaya.getUnreadForums();
     if (status === Status.FAILED) {
         await channel.send('Failed to fetch assignments from binusmaya!');
         return;
