@@ -95,11 +95,7 @@ async function postAssignments(config: Config) {
         return;
 
     const { status, notifs } = await binusmaya.getUnreadAssignments();
-    if (status === Status.FAILED) {
-        await channel.send('Failed to fetch assignments from binusmaya!');
-        return;
-    }
-    if (!notifs)
+    if (status === Status.FAILED || !notifs)
         return;
 
     let foundAssignments = false;
@@ -133,14 +129,10 @@ async function postForums(config: Config) {
         return;
 
     const { status, notifs } = await binusmaya.getUnreadForums();
-    if (status === Status.FAILED) {
-        await channel.send('Failed to fetch assignments from binusmaya!');
-        return;
-    }
-    if (!notifs)
+    if (status === Status.FAILED || !notifs)
         return;
 
-    let foundAssignments = false;
+    let foundForums = false;
     for (const notif of notifs) {
         const user = client.user!;
         const icon = user.displayAvatarURL();
@@ -157,10 +149,10 @@ async function postForums(config: Config) {
         await channel.send(embed);
         await binusmaya.readNotification(notif);
 
-        foundAssignments = true;
+        foundForums = true;
     }
 
-    if (foundAssignments)
+    if (foundForums)
         await channel.send("@everyone I found forums!");
 }
 

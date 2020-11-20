@@ -1,6 +1,6 @@
 {
   "name": "binus-kids-bot",
-  "version": "1.6.1",
+  "version": "1.6.2",
   "description": "BINUS scraper discord bot",
   "main": "dist/index.js",
   "author": "Alviannn",
@@ -25,6 +25,7 @@
     "dotenv": "^8.2.0",
     "eslint": "^7.13.0",
     "execall2": "^2.0.7",
+    "form-data": "^3.0.0",
     "got": "^11.8.0",
     "luxon": "^1.25.0",
     "node-fetch": "^2.6.1",
