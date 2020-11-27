@@ -68,4 +68,5 @@
     "resolveJsonModule": true
   },
   "include": ["./src/"]
+//   "include": ["./tests/"]
 }

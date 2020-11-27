@@ -1,9 +1,11 @@
+/* eslint-disable no-inner-declarations */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import cheerio from 'cheerio';
 import { execall } from 'execall2';
 import fetch from 'node-fetch';
 import { Status, Notification, cookies } from '../commons';
+import { Assignment } from '../types';
 
 export namespace binusmaya {
 
@@ -15,11 +17,6 @@ export namespace binusmaya {
         'Referer': BINMAY_URL + '/newStudent/',
         'Cookie': ''
     };
-
-    type Result = {
-        status: Status,
-        notifs: Notification[]
-    }
 
     /** 
      * Login to binusmaya 
@@ -114,48 +111,76 @@ export namespace binusmaya {
         }
     }
 
+    /**
+     * Attempts to finish the assignment object
+     */
+    async function _fillAssignment(asg: Assignment): Promise<boolean> {
+        try {
+            const resp = await fetch(
+                BINMAY_URL + '/services/ci/index.php/student/classes/assignmentType/COMP6649/017465/2010/LEC/20639/01',
+                {
+                    headers,
+                    method: 'GET'
+                }
+            );
+
+            const list: Record<string, unknown>[] = await resp.json();
+            const data = list[list.length - 1];
+
+            const rawTime = String(data['deadlineTime']).split(':');
+            rawTime.pop();
+
+            asg.title = String(data['Title']);
+            asg.deadline = String(data['deadlineDuration']) + ' - ' + rawTime.join(':');
+
+            return true;
+        } catch (e) {
+            return false;
+        }
+    }
+
     /** 
      * Gets all binusmaya (unread) assignments 
      */
-    export async function getUnreadAssignments(): Promise<Result> {
+    export async function getUnreadAssignments(): Promise<Assignment[]> {
         const resp = await fetch(BINMAY_URL + '/services/ci/index.php/notification/getUnreadNotificationList', {
             method: 'POST',
             headers
         });
 
         try {
-            const dataList: any[] = await resp.json();
-            const notifList: Notification[] = [];
+            const dataList: Record<string, unknown>[] = await resp.json();
+            const asgList: Assignment[] = [];
 
             for (const data of dataList) {
                 if (data['CategoryID'] !== 'ASG')
                     continue;
 
-                const notif: Notification = {
-                    id: data['NotificationID'],
+                const asg: Assignment = {
+                    id: String(data['NotificationID']),
+                    title: '-',
+                    sender: String(data['From']),
                     link: BINMAY_URL + '/' + data['Path'] + data['LinkID'],
-                    sender: data['From'],
-                    title: data['Title'],
-                    time: String(data['NotificationTime']).split(' , ').join(' - ')
+                    time: String(data['NotificationTime']).split(' , ').join(' - '),
+                    deadline: '-'
                 };
 
-                notifList.push(notif);
+                const result = await _fillAssignment(asg);
+                if (result)
+                    asgList.push(asg);
             }
 
-            return {
-                status: Status.SUCCESS,
-                notifs: notifList
-            };
+            return asgList;
         } catch (e) {
             console.log('ERROR: Reading unread assignments!');
-            return { status: Status.FAILED, notifs: [] };
+            return [];
         }
     }
 
     /** 
      * Gets all binusmaya (unread) forums 
      */
-    export async function getUnreadForums(): Promise<Result> {
+    export async function getUnreadForums(): Promise<Notification[]> {
         const resp = await fetch(BINMAY_URL + '/services/ci/index.php/notification/getUnreadNotificationList', {
             method: 'POST',
             headers
@@ -180,20 +205,17 @@ export namespace binusmaya {
                 notifList.push(notif);
             }
 
-            return {
-                status: Status.SUCCESS,
-                notifs: notifList
-            };
+            return notifList;
         } catch (e) {
             console.log('ERROR: Reading unread forums!');
-            return { status: Status.FAILED, notifs: [] };
+            return [];
         }
     }
 
     /** 
      * Reads a notification 
      */
-    export async function readNotification(notif: Notification): Promise<Status> {
+    export async function readNotification(notifId: string): Promise<Status> {
         try {
             await fetch(BINMAY_URL + '/services/ci/index.php/notification/readNotification', {
                 method: 'POST',
@@ -201,7 +223,7 @@ export namespace binusmaya {
                     ...headers,
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ 'NotificationID': notif.id })
+                body: JSON.stringify({ 'NotificationID': notifId })
             });
 
             return Status.SUCCESS;

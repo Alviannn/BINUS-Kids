@@ -55,6 +55,21 @@ export type Notification = {
     time: string
 };
 
+export type Assignment = {
+    /** the notification id */
+    id: string,
+    /** the assignment title */
+    title: string,
+    /** the assignment creator */
+    sender: string,
+    /** the creation date */
+    time: string,
+    /** the deadline date */
+    deadline: string,
+    /** the assignment url */
+    link: string
+};
+
 export type NullableCommand = Command | null;
 
 export type ScheduleResult = {

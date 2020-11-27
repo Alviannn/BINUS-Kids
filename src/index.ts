@@ -88,32 +88,35 @@ setInterval(async () => {
     database.lastAutoUpdateSchedule(currentDate);
 }, 120_000);
 
+// ---------------------------------------------------------------------------------------------- //
+
 async function postAssignments(config: Config) {
     const channel = client.channels.cache.get(config.assignments_channel);
     // schedules channel must exists and must be a text channel
     if (!channel || !(channel instanceof TextChannel))
         return;
 
-    const { status, notifs } = await binusmaya.getUnreadAssignments();
-    if (status === Status.FAILED || !notifs)
+    const assigns = await binusmaya.getUnreadAssignments();
+    if (!assigns)
         return;
 
     let foundAssignments = false;
-    for (const notif of notifs) {
+    for (const asg of assigns) {
         const user = client.user!;
         const icon = user.displayAvatarURL();
 
         const embed = new MessageEmbed()
-            .setAuthor(notif.title, icon)
+            .setAuthor(asg.title, icon)
             .setThumbnail(icon)
             .setColor('RANDOM')
 
-            .addField('**Sender**', notif.sender)
-            .addField('**Date**', notif.time)
-            .addField('**URL**', `[Click here](${notif.link})`);
+            .addField('**Sender**', asg.sender)
+            .addField('**Date**', asg.time)
+            .addField('**Deadline**', asg.deadline)
+            .addField('**URL**', `[Click here](${asg.link})`);
 
         await channel.send(embed);
-        await binusmaya.readNotification(notif);
+        await binusmaya.readNotification(asg.id);
 
         foundAssignments = true;
     }
@@ -128,8 +131,8 @@ async function postForums(config: Config) {
     if (!channel || !(channel instanceof TextChannel))
         return;
 
-    const { status, notifs } = await binusmaya.getUnreadForums();
-    if (status === Status.FAILED || !notifs)
+    const notifs = await binusmaya.getUnreadForums();
+    if (!notifs)
         return;
 
     let foundForums = false;
@@ -147,7 +150,7 @@ async function postForums(config: Config) {
             .addField('**URL**', `[Click here](${notif.link})`);
 
         await channel.send(embed);
-        await binusmaya.readNotification(notif);
+        await binusmaya.readNotification(notif.id);
 
         foundForums = true;
     }
@@ -156,7 +159,9 @@ async function postForums(config: Config) {
         await channel.send("@everyone I found forums!");
 }
 
-// binusmaya post task (runs every 10 mins)
+// ---------------------------------------------------------------------------------------------- //
+
+// binusmaya post task (runs every 5 mins)
 setInterval(async () => {
     if (!client.guilds.cache.size)
         return;
@@ -172,4 +177,4 @@ setInterval(async () => {
 
     await postAssignments(config);
     await postForums(config);
-}, 600_000);
+}, 300_000);
