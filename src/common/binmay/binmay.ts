@@ -117,7 +117,7 @@ export namespace binusmaya {
     async function _fillAssignment(asg: Assignment): Promise<boolean> {
         try {
             const resp = await fetch(
-                BINMAY_URL + '/services/ci/index.php/student/classes/assignmentType/COMP6649/017465/2010/LEC/20639/01',
+                BINMAY_URL + '/services/ci/index.php/student/classes/assignmentType/' + asg.pathId + '/01',
                 {
                     headers,
                     method: 'GET'
@@ -162,7 +162,8 @@ export namespace binusmaya {
                     sender: String(data['From']),
                     link: BINMAY_URL + '/' + data['Path'] + data['LinkID'],
                     time: String(data['NotificationTime']).split(' , ').join(' - '),
-                    deadline: '-'
+                    deadline: '-',
+                    pathId: String(data['LinkID'])
                 };
 
                 const result = await _fillAssignment(asg);

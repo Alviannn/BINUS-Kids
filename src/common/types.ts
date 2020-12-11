@@ -67,7 +67,9 @@ export type Assignment = {
     /** the deadline date */
     deadline: string,
     /** the assignment url */
-    link: string
+    link: string,
+    /** the assignment path id, ex: `CHAR6034/015318/2010/CLC/20332` */
+    pathId: string,
 };
 
 export type NullableCommand = Command | null;
