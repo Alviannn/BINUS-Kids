@@ -33,13 +33,14 @@ export namespace binusmaya {
             headers['Cookie'] = cookies.cookiesToString(cookieMap);
 
             const $ = cheerio.load(content);
-            const inputList = $('input').toArray();
+            const inputList = $('input').toArray() as cheerio.TagElement[];
 
             const userId = inputList[0].attribs.name;
             const passId = inputList[1].attribs.name;
             const submId = inputList[2].attribs.name;
 
-            const loaderPage = $('script').toArray()[4].attribs.src.substr(2);
+            const scriptList = $('script').toArray() as cheerio.TagElement[];
+            const loaderPage = scriptList[4].attribs.src.substr(2);
             const loaderResp = await fetch(BINMAY_URL + loaderPage, {
                 method: 'GET', headers
             });

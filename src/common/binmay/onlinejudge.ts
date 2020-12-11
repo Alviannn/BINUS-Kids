@@ -104,6 +104,8 @@ export namespace onlinejudge {
 
         // iterates over all contest html
         rawContests.each(function (this: unknown, _, elem) {
+            elem = elem as cheerio.TagElement;
+            
             const id = elem.attribs['value'];
             const title = $(this).text();
 
