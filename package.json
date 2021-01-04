@@ -24,7 +24,7 @@
     "cheerio": "^1.0.0-rc.3",
     "discord.js": "^12.5.1",
     "dotenv": "^8.2.0",
-    "eslint": "^7.15.0",
+    "eslint": "^7.17.0",
     "execall2": "^2.0.7",
     "form-data": "^3.0.0",
     "got": "^11.8.1",
