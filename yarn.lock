@@ -145,10 +145,10 @@
   dependencies:
     "@types/node" "*"
 
-"@types/luxon@^1.25.0":
-  version "1.25.0"
-  resolved "https://registry.yarnpkg.com/@types/luxon/-/luxon-1.25.0.tgz#3d6fe591fac874f48dd225cb5660b2b785a21a05"
-  integrity sha512-iIJp2CP6C32gVqI08HIYnzqj55tlLnodIBMCcMf28q9ckqMfMzocCmIzd9JWI/ALLPMUiTkCu1JGv3FFtu6t3g==
+"@types/luxon@^1.25.3":
+  version "1.25.3"
+  resolved "https://registry.yarnpkg.com/@types/luxon/-/luxon-1.25.3.tgz#d1b63ae2283af3751a90413d6387189361b68bfc"
+  integrity sha512-nR/M8+XIxem0ntRM5UMm266NGg96n0v5rAE5a66Mc0IiuXPmavbC+7dxZAAkUJiayXQmpBExq2o8Gbmw3Umqaw==
 
 "@types/node-fetch@^2.5.7":
   version "2.5.7"
