@@ -15,7 +15,7 @@
   "dependencies": {
     "@types/better-sqlite3": "^5.4.1",
     "@types/cheerio": "^0.22.23",
-    "@types/luxon": "^1.25.0",
+    "@types/luxon": "^1.26.0",
     "@types/node-fetch": "^2.5.7",
     "@types/tough-cookie": "^4.0.0",
     "@typescript-eslint/eslint-plugin": "^4.9.0",
