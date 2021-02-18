@@ -7,7 +7,7 @@ class SocsCommand extends Command {
         const { channel } = msg;
         const { status, contests } = await onlinejudge.getContests();
 
-        if (status == Status.FAILED)
+        if (status === Status.FAILED)
             return await channel.send('Failed to grab the contest titles!');
 
         const tempList: string[] = [];
