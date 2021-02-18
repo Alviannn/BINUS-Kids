@@ -8,7 +8,7 @@ class HelpCommand extends Command {
         const { author, client, channel } = msg;
 
         if (!args[0]) {
-            const result = [];
+            const result = [] as string[];
             for (const key of commandMap.keys())
                 result.push('`' + key + '`');
 
