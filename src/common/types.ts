@@ -87,5 +87,3 @@ export type Config = {
     assignments_channel: string,
     forums_channel: string
 };
-
-export enum Status { SUCCESS, FAILED }

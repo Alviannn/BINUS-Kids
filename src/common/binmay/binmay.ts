@@ -3,9 +3,9 @@
 
 import cheerio from 'cheerio';
 import { execall } from 'execall2';
-import fetch from 'node-fetch';
-import { Status, Notification, cookies } from '../commons';
+import { Notification } from '../commons';
 import { Assignment } from '../types';
+import { HttpClient } from '../extrafetch';
 
 export namespace binusmaya {
 
@@ -14,83 +14,71 @@ export namespace binusmaya {
     const headers = {
         'User-Agent': 'Mozilla/5.0',
         'Origin': BINMAY_URL,
-        'Referer': BINMAY_URL + '/newStudent/',
-        'Cookie': ''
+        'Referer': BINMAY_URL + '/newStudent/'
     };
+
+    const client = new HttpClient(true, headers);
 
     /** 
      * Login to binusmaya 
      */
-    export async function login(): Promise<Status> {
+    export async function login(): Promise<boolean> {
         try {
-            const loginResp = await fetch(BINMAY_URL + '/login', {
-                headers,
-                method: 'GET'
-            });
-            const content = await loginResp.text();
+            client.cookies.clear();
 
-            const cookieMap = cookies.listToCookies(loginResp.headers.raw()['set-cookie']);
-            headers['Cookie'] = cookies.cookiesToString(cookieMap);
+            const loginResp = await client.get(`${BINMAY_URL}/login`);
+            const content = loginResp.content;
 
             const $ = cheerio.load(content);
-            const inputList = $('input').toArray() as cheerio.TagElement[];
 
-            const userId = inputList[0].attribs.name;
-            const passId = inputList[1].attribs.name;
-            const submId = inputList[2].attribs.name;
+            const userId = $('input[placeholder="Username"]').attr('name')!;
+            const passId = $('input[placeholder="Password"]').attr('name')!;
+            const submId = $('input[type="submit"]').attr('name')!;
 
-            const scriptList = $('script').toArray() as cheerio.TagElement[];
-            const loaderPage = scriptList[4].attribs.src.substr(2);
-            const loaderResp = await fetch(BINMAY_URL + loaderPage, {
-                method: 'GET', headers
-            });
+            const loaderUrl = cheerio($('script')[4]).attr('src')!;
+            const loaderResp = await client.get(BINMAY_URL + loaderUrl);
 
             const regex = /name="([^"]+)" value="([^"]+)"/g;
-            const matches = execall(regex, await loaderResp.text());
+            const matches = execall(regex, loaderResp.content);
 
             const csrf_one = [matches[0][1], matches[0][2]];
             const csrf_two = [matches[1][1], matches[1][2]];
 
-            const params = new URLSearchParams();
-            params.append(userId, process.env.BINUS_USER!);
-            params.append(passId, process.env.BINUS_PASS!);
-            params.append(submId, 'Login');
-            params.append(csrf_one[0], csrf_one[1]);
-            params.append(csrf_two[0], csrf_two[1]);
-
-            const lastResp = await fetch(BINMAY_URL + '/login/sys_login.php', {
-                method: 'POST', headers, body: params
+            const lastResp = await client.post(`${BINMAY_URL}/login/sys_login.php`, {
+                bodyValue: {
+                    query: {
+                        [userId]: process.env.BINUS_USER!,
+                        [passId]: process.env.BINUS_PASS!,
+                        [submId]: 'Login',
+                        [csrf_one[0]]: csrf_one[1],
+                        [csrf_two[0]]: csrf_two[1],
+                    }
+                }
             });
 
             if (!lastResp.url.toLowerCase().includes('newstudent'))
-                return Status.FAILED;
+                return false;
 
-            return Status.SUCCESS;
+            return true;
         } catch (e) {
-            console.log('ERROR: Logging in to binusmaya!');
-            return Status.FAILED;
+            console.log('[ERROR]: Logging in to binusmaya!');
+            return false;
         }
     }
 
     /** 
      * Logout from binusmaya
      */
-    export async function logout(): Promise<Status> {
+    export async function logout(): Promise<boolean> {
         try {
-            await fetch(BINMAY_URL + 'services/ci/index.php/login/logout', {
-                method: 'GET',
-                headers
-            });
-            await fetch(BINMAY_URL + 'simplesaml/module.php/core/as_logout.php?AuthId=default-sp&ReturnTo=https%3A%2F%2Fbinusmaya.binus.ac.id%2Flogin', {
-                method: 'GET',
-                headers
-            });
+            await client.get(`${BINMAY_URL}/services/ci/index.php/login/logout`);
+            await client.get(`${BINMAY_URL}/simplesaml/module.php/core/as_logout.php?AuthId=default-sp&ReturnTo=https%3A%2F%2Fbinusmaya.binus.ac.id%2Flogin`);
 
-            headers['Cookie'] = '';
-            return Status.SUCCESS;
-        } catch (e) {
-            console.log('ERROR: Logging out from binusmaya!');
-            return Status.FAILED;
+            client.cookies.clear();
+            return true;
+        } catch (_) {
+            console.log('[ERROR]: Logging out from binusmaya!');
+            return false;
         }
     }
 
@@ -98,16 +86,13 @@ export namespace binusmaya {
      * Determines if we still have the session to binusmaya or not 
      */
     export async function hasSession(): Promise<boolean> {
-        const resp = await fetch(BINMAY_URL + '/services/ci/index.php/staff/init/check_session', {
-            method: 'GET',
-            headers
-        });
+        const resp = await client.get(`${BINMAY_URL}/services/ci/index.php/staff/init/check_session`);
 
         try {
-            const data: Record<string, number> = JSON.parse(await resp.text());
+            const data = resp.json as Record<string, number>;
             return data['SessionStatus'] === 1;
-        } catch (e) {
-            console.log('ERROR: Checking binusmaya session!');
+        } catch (_) {
+            console.log('[ERROR]: Checking binusmaya session!');
             return false;
         }
     }
@@ -117,15 +102,9 @@ export namespace binusmaya {
      */
     async function _fillAssignment(asg: Assignment): Promise<boolean> {
         try {
-            const resp = await fetch(
-                BINMAY_URL + '/services/ci/index.php/student/classes/assignmentType/' + asg.pathId + '/01',
-                {
-                    headers,
-                    method: 'GET'
-                }
-            );
+            const resp = await client.get(`${BINMAY_URL}/services/ci/index.php/student/classes/assignmentType/${asg.pathId}/01`);
 
-            const list: Record<string, unknown>[] = await resp.json();
+            const list = resp.json as Record<string, unknown>[];
             const data = list[list.length - 1];
 
             const rawTime = String(data['deadlineTime']).split(':');
@@ -135,7 +114,7 @@ export namespace binusmaya {
             asg.deadline = String(data['deadlineDuration']) + ' - ' + rawTime.join(':');
 
             return true;
-        } catch (e) {
+        } catch (_) {
             return false;
         }
     }
@@ -144,13 +123,10 @@ export namespace binusmaya {
      * Gets all binusmaya (unread) assignments 
      */
     export async function getUnreadAssignments(): Promise<Assignment[]> {
-        const resp = await fetch(BINMAY_URL + '/services/ci/index.php/notification/getUnreadNotificationList', {
-            method: 'POST',
-            headers
-        });
+        const resp = await client.post(`${BINMAY_URL}/services/ci/index.php/notification/getUnreadNotificationList`);
 
         try {
-            const dataList: Record<string, unknown>[] = await resp.json();
+            const dataList = resp.json as Record<string, unknown>[];
             const asgList: Assignment[] = [];
 
             for (const data of dataList) {
@@ -173,8 +149,8 @@ export namespace binusmaya {
             }
 
             return asgList;
-        } catch (e) {
-            console.log('ERROR: Reading unread assignments!');
+        } catch (_) {
+            console.log('[ERROR]: Reading unread assignments!');
             return [];
         }
     }
@@ -183,13 +159,10 @@ export namespace binusmaya {
      * Gets all binusmaya (unread) forums 
      */
     export async function getUnreadForums(): Promise<Notification[]> {
-        const resp = await fetch(BINMAY_URL + '/services/ci/index.php/notification/getUnreadNotificationList', {
-            method: 'POST',
-            headers
-        });
+        const resp = await client.post(`${BINMAY_URL}/services/ci/index.php/notification/getUnreadNotificationList`);
 
         try {
-            const dataList: any[] = await resp.json();
+            const dataList = resp.json as any[];
             const notifList: Notification[] = [];
 
             for (const data of dataList) {
@@ -208,8 +181,8 @@ export namespace binusmaya {
             }
 
             return notifList;
-        } catch (e) {
-            console.log('ERROR: Reading unread forums!');
+        } catch (_) {
+            console.log('[ERROR]: Reading unread forums!');
             return [];
         }
     }
@@ -217,21 +190,22 @@ export namespace binusmaya {
     /** 
      * Reads a notification 
      */
-    export async function readNotification(notifId: string): Promise<Status> {
+    export async function readNotification(notifId: string): Promise<boolean> {
+        client.headers['Content-Type'] = 'application/json';
+
         try {
-            await fetch(BINMAY_URL + '/services/ci/index.php/notification/readNotification', {
-                method: 'POST',
-                headers: {
-                    ...headers,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ 'NotificationID': notifId })
+            await client.post(`${BINMAY_URL}/services/ci/index.php/notification/readNotification`, {
+                bodyValue: {
+                    json: { 'NotificationID': notifId }
+                }
             });
 
-            return Status.SUCCESS;
-        } catch (e) {
-            console.log('ERROR: Reading notifications!');
-            return Status.FAILED;
+            delete client.headers['Content-Type'];
+            return true;
+        } catch (_) {
+            console.log('[ERROR]: Reading notifications!');
+            delete client.headers['Content-Type'];
+            return false;
         }
     }
 

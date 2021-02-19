@@ -3,7 +3,7 @@
 import got, { Got } from 'got';
 import { CookieJar } from 'tough-cookie';
 import cheerio from 'cheerio';
-import { database, Status, times } from '../commons';
+import { database, times } from '../commons';
 
 export namespace onlinejudge {
 
@@ -11,7 +11,7 @@ export namespace onlinejudge {
     let session: Got | null = null;
 
     type Result = {
-        status: Status,
+        status: boolean,
         contests: string[]
     }
 
@@ -29,11 +29,11 @@ export namespace onlinejudge {
     }
 
     /** Login to the SOCS online judge */
-    async function login(): Promise<Status> {
+    async function login(): Promise<boolean> {
         try {
             _resetSession();
 
-            await session!.post(SOCS_URL + '/quiz/team/index.php', {
+            await session!.post(`${SOCS_URL}/quiz/team/index.php`, {
                 form: {
                     login: process.env.BINUS_USER + '@binus.ac.id',
                     passwd: process.env.BINUS_PASS,
@@ -51,21 +51,21 @@ export namespace onlinejudge {
             if (!result || !result.text().includes('logged in'))
                 throw Error();
 
-            return Status.SUCCESS;
+            return true;
         } catch (_) {
-            return Status.FAILED;
+            return false;
         }
     }
 
     /** Logout from the SOCS online judge */
-    async function logout(): Promise<Status> {
+    async function logout(): Promise<boolean> {
         try {
-            await session!.get(SOCS_URL + 'quiz/auth/logout.php');
+            await session!.get(`${SOCS_URL}/quiz/auth/logout.php`);
             _resetSession();
 
-            return Status.SUCCESS;
+            return true;
         } catch (_) {
-            return Status.FAILED;
+            return false;
         }
     }
 
@@ -85,12 +85,12 @@ export namespace onlinejudge {
             for (const data of dataList)
                 contestList.push(data['title']);
 
-            return { status: Status.SUCCESS, contests: contestList };
+            return { status: true, contests: contestList };
         }
 
         const loginStatus = await login();
         // if the bot fails to login to the web, then cancel everything
-        if (loginStatus === Status.FAILED)
+        if (loginStatus === false)
             return { status: loginStatus, contests: [] };
 
         const resp = await session!.get(SOCS_URL + '/quiz/team/');
@@ -118,7 +118,7 @@ export namespace onlinejudge {
         lastFetchSocs(currentDate);
 
         await logout();
-        return { status: Status.SUCCESS, contests: contestList };
+        return { status: true, contests: contestList };
     }
 
 }

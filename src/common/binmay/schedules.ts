@@ -77,24 +77,20 @@ export namespace schedules {
 
         schedules_db.prepare('DELETE FROM schedules;').run();
         schedList.forEach((sched) => {
-            schedules_db.prepare(
-                'INSERT INTO schedules '
-                + '(date, time, code, delivery, course, week, session, meeting)'
-                + ' VALUES '
-                + '(?, ?, ?, ?, ?, ?, ?, ?);'
-            ).run(
-                sched.date,
-                sched.time,
+            schedules_db.prepare('INSERT INTO schedules (date, time, code, delivery, course, week, session, meeting) VALUES (?, ?, ?, ?, ?, ?, ?, ?);')
+                .run(
+                    sched.date,
+                    sched.time,
 
-                sched.code,
-                sched.delivery,
-                sched.course,
+                    sched.code,
+                    sched.delivery,
+                    sched.course,
 
-                sched.week,
-                sched.session,
+                    sched.week,
+                    sched.session,
 
-                sched.meeting ? JSON.stringify(sched.meeting) : null
-            );
+                    sched.meeting ? JSON.stringify(sched.meeting) : null
+                );
         });
 
         lastFetchSchedule(date);
@@ -147,17 +143,17 @@ export namespace schedules {
             try {
                 jsonBody = JSON.parse(loginResp.body);
             } catch (_) {
-                throw Error('Failed to login to myclass binusmaya!');
+                throw Error('[ERROR]: Failed to login to myclass binusmaya!');
             }
 
             if (!jsonBody['Status'])
-                throw Error('Failed to login to myclass binusmaya!');
+                throw Error('[ERROR]: Failed to login to myclass binusmaya!');
 
             const classesResp = await session.get(CLASSES_URL);
             const rawData = JSON.parse(classesResp.body);
 
             if (!(rawData instanceof Array))
-                throw Error('Failed to fetch schedules!');
+                throw Error('[ERROR]: Failed to fetch schedules!');
 
             for (const data of rawData) {
                 const schedule: Schedule = parseSchedule(data);
@@ -165,12 +161,14 @@ export namespace schedules {
             }
         } catch (error) {
             console.error(error);
+            return [];
         }
 
         try {
             await session.get(LOGOUT_URL);
-        } catch (error) {
+        } catch (_) {
             // program fails to logout, who cares
+            console.error('[ERROR]: Failed to logout of myclass binusmaya!');
         }
 
         const currentDate = times.asiaDate().toFormat(times.BINUS_DATE_FORMAT);
