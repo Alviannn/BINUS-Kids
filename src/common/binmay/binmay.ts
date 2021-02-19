@@ -11,13 +11,11 @@ export namespace binusmaya {
 
     const BINMAY_URL = 'https://binusmaya.binus.ac.id';
 
-    const headers = {
+    const client = new HttpClient(true, {
         'User-Agent': 'Mozilla/5.0',
         'Origin': BINMAY_URL,
         'Referer': BINMAY_URL + '/newStudent/'
-    };
-
-    const client = new HttpClient(true, headers);
+    });
 
     /** 
      * Login to binusmaya 
@@ -150,7 +148,7 @@ export namespace binusmaya {
 
             return asgList;
         } catch (_) {
-            console.log('[ERROR]: Reading unread assignments!');
+            console.log('[ERROR]: Failed to read all unread assignments!');
             return [];
         }
     }
@@ -182,7 +180,7 @@ export namespace binusmaya {
 
             return notifList;
         } catch (_) {
-            console.log('[ERROR]: Reading unread forums!');
+            console.log('[ERROR]: Failed to read all unread forums!');
             return [];
         }
     }
@@ -203,7 +201,7 @@ export namespace binusmaya {
             delete client.headers['Content-Type'];
             return true;
         } catch (_) {
-            console.log('[ERROR]: Reading notifications!');
+            console.log('[ERROR]: Failed to set read a notification!');
             delete client.headers['Content-Type'];
             return false;
         }

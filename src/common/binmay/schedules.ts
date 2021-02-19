@@ -40,7 +40,7 @@ export namespace schedules {
     /** Handles formatting a schedule to an embed */
     export function formatEmbedSchedule(botUser: ClientUser, schedule: Schedule | null): MessageEmbed {
         if (!schedule)
-            throw Error('Invalid schedule object!');
+            throw Error('[ERROR]: Invalid schedule object!');
 
         const icon = botUser.displayAvatarURL();
         const embed = new MessageEmbed()
@@ -59,12 +59,9 @@ export namespace schedules {
         const { meeting } = schedule;
         if (meeting)
             embed.addField('**Meeting**',
-                `
-                **ID**: ${meeting.id}
-                **Password**: ${meeting.password}
-                **URL**: [Click here](${meeting.url})
-                `
-            );
+                `**ID**: ${meeting.id}\n` +
+                `**Password**: ${meeting.password}\n` +
+                `**URL**: [Click here](${meeting.url})`);
 
         return embed;
     }
