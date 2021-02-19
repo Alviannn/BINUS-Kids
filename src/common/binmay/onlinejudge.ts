@@ -90,7 +90,7 @@ export namespace onlinejudge {
 
         const loginStatus = await login();
         // if the bot fails to login to the web, then cancel everything
-        if (loginStatus === false)
+        if (!loginStatus)
             return { status: loginStatus, contests: [] };
 
         const resp = await session!.get(SOCS_URL + '/quiz/team/');

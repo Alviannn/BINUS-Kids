@@ -3,7 +3,7 @@
 import { MessageEmbed, TextChannel } from 'discord.js';
 import dotenv from 'dotenv';
 import { DateTime } from 'luxon';
-import { createClient, times, schedules, client, manager, database, binusmaya, getConfig, Status, Config } from './common/commons';
+import { createClient, times, schedules, client, manager, database, binusmaya, getConfig, Config } from './common/commons';
 
 dotenv.config();
 createClient();
@@ -169,7 +169,7 @@ setInterval(async () => {
     const hasSession = await binusmaya.hasSession();
     if (!hasSession) {
         const loginStatus = await binusmaya.login();
-        if (loginStatus === Status.FAILED)
+        if (!loginStatus)
             return;
     }
 

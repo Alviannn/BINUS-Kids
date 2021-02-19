@@ -1,5 +1,5 @@
 import { Message } from 'discord.js';
-import { Command, onlinejudge, Status } from '../../common/commons';
+import { Command, onlinejudge } from '../../common/commons';
 
 class SocsCommand extends Command {
 
@@ -7,7 +7,7 @@ class SocsCommand extends Command {
         const { channel } = msg;
         const { status, contests } = await onlinejudge.getContests();
 
-        if (status === Status.FAILED)
+        if (!status)
             return await channel.send('Failed to grab the contest titles!');
 
         const tempList: string[] = [];

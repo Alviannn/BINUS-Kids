@@ -33,7 +33,6 @@ export * from './types';
 
 export * from './others/database';
 export * from './others/times';
-export * from './others/cookies';
 
 export * from './managers/manager';
 
