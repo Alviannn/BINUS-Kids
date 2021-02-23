@@ -1,26 +1,37 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 
-import { client, getConfig, manager } from '../common/commons';
+import { client, loadConfig, manager } from '../common/commons';
 
 client.on('message', async (msg) => {
-    const { channel, content, author } = msg;
-    const config = getConfig();
+    const { guild, channel, content, author } = msg;
 
-    // prevents user from sending messages to some channels
-    if ((author.id !== client.user!.id && author.id !== '217970261230747648') && (channel.id === config.schedules_channel || channel.id === config.assignments_channel)) {
+    // the bot should only work in discord servers
+    if (!guild)
+        return await channel.send("The bot doesn't accept private messages!");
+
+    const config = loadConfig();
+
+    const conf = config.servers[guild.id];
+    const prefix = manager.getPrefix(guild);
+
+    const isAdmin = (author.id === client.user!.id) || (author.id === '217970261230747648');
+    const isSpecialChannels = (channel.id === conf.schedules_channel) || (channel.id === conf.assignments_channel) || (channel.id === conf.forums_channel);
+
+    // prevents normal user from sending messages to some channels
+    if (!isAdmin && isSpecialChannels) {
         await msg.delete({ timeout: 300 });
         return;
     }
 
     // determines if a command supposed to be executed
-    if (!content.startsWith(config.prefix))
+    if (!content.startsWith(prefix))
         return;
     // prevents listening to bot
     if (author.bot)
         return;
 
     // grabs the arguments
-    const args = content.substr(config.prefix.length).split(' ');
+    const args = content.substr(prefix.length).split(' ');
     if (!args)
         return;
 
@@ -31,7 +42,7 @@ client.on('message', async (msg) => {
 
     // if command isn't found, cancel execution
     if (!command)
-        return await channel.send('Not found command named ' + cmdName + '!');
+        return await channel.send(`Not found command named ${cmdName}!`);
 
     // executes the command
     await command.execute(msg, args);

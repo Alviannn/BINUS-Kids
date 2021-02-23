@@ -1,20 +1,20 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 
 import { Message, MessageEmbed, version } from 'discord.js';
-import { Command, getConfig } from '../common/commons';
+import { Command, manager } from '../common/commons';
 
 class InfoCommand extends Command {
 
     public async execute(msg: Message): Promise<unknown> {
-        const { channel, client } = msg;
-        const config = getConfig();
+        const { guild, channel, client } = msg;
+        const prefix = manager.getPrefix(guild);
 
         const packageJson = require('../../package.json');
         const embed = new MessageEmbed()
             .setColor('AQUA')
             .setAuthor('Bot Information', client.user!.displayAvatarURL())
             .setThumbnail(client.user!.displayAvatarURL())
-            .addField('Command Prefix', '`' + config.prefix + '`')
+            .addField('Command Prefix', '`' + prefix + '`')
             .addField('Author', 'Alvian#1341')
             .addField('Version', packageJson.version)
             .addField('discord.js', version)

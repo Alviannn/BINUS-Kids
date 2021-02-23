@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
-import { client, getConfig } from '../common/commons';
+import { client, manager } from '../common/commons';
 
 client.on('message', async (msg) => {
     const { mentions, content, guild } = msg;
@@ -8,8 +8,8 @@ client.on('message', async (msg) => {
 
     const clientUser = client.user;
     const member = guild!.member(clientUser!);
-    const config = getConfig();
+    const prefix = manager.getPrefix(guild);
 
     if (mentions.members!.array()[0] === member)
-        await msg.reply(`The bot prefix is **${config.prefix}**!`);
+        await msg.reply(`The bot prefix is **${prefix}**!`);
 });

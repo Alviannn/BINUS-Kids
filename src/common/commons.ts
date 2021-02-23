@@ -9,7 +9,7 @@ export let client: Client;
 /**
  * Gets the current config values
  */
-export function getConfig(): Config {
+export function loadConfig(): Config {
     const resolved = path.resolve('./config.json');
     return require(resolved) as Config;
 }

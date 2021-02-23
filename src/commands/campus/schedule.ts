@@ -2,37 +2,37 @@
 
 import { Message, MessageEmbed, TextChannel } from 'discord.js';
 import { DateTime } from 'luxon';
-import { Command, schedules, times, getConfig } from '../../common/commons';
+import { Command, schedules, times, loadConfig, manager } from '../../common/commons';
 
 class ScheduleCommand extends Command {
 
     public async execute(msg: Message, args: string[]): Promise<unknown> {
-        const { channel, client } = msg;
+        const { guild, channel, client } = msg;
         if (!(channel instanceof TextChannel))
             return;
 
-        const config = getConfig();
         const asiaDate = times.asiaDate();
-
         const currentDate = asiaDate.toFormat(times.BINUS_DATE_FORMAT);
         const tomorrowDate = asiaDate.plus({ days: 1 }).toFormat(times.BINUS_DATE_FORMAT);
+
+        const prefix = manager.getPrefix(guild);
 
         if (!args[0]) {
             const embed = new MessageEmbed()
                 .setAuthor('Schedule command usage')
                 .setColor('RANDOM')
                 .setDescription(
-                    "Use `" + config.prefix + "schedule help` or not use any arguments at all"
-                    + "\nto view how this command works!"
-                    + "\n"
-                    + "\nYou can use other arguments to use the schedule command like using"
-                    + "\n`" + config.prefix + "schedule today` to view today's schedule"
-                    + "\n`" + config.prefix + "schedule tomorrow` to view tomorrow's schedule"
-                    + "\n`" + config.prefix + "schedule " + currentDate + "` to view the schedule on specified date"
-                    + "\n"
-                    + "\nExample: `" + config.prefix + "schedule " + currentDate + "`"
-                    + "\n"
-                    + "\nFor quite less information like the aliases and command description do `" + config.prefix + "help schedule`"
+                    `Use \`${prefix}schedule help\` or not use any arguments at all`
+                    + `\nto view how this command works!`
+                    + `\n`
+                    + `\nYou can use other arguments to use the schedule command like using`
+                    + `\n\`${prefix}schedule today\` to view today's schedule`
+                    + `\n${prefix}schedule tomorrow\` to view tomorrow's schedule`
+                    + `\n\`${prefix}schedule ${currentDate}\` to view the schedule on specified date`
+                    + `\n`
+                    + `\nExample: \`${prefix}schedule ${currentDate}\``
+                    + `\n`
+                    + `\nFor quite less information like the aliases and command description do \`${prefix}help schedule\``
                 );
 
             await channel.send(embed);
@@ -99,11 +99,11 @@ class ScheduleCommand extends Command {
                     .setAuthor('All schedules (in dates)')
                     .setDescription(
                         dateList.join('\n')
-                        + '\n'
-                        + '\nYou can view the classes within a date by using'
-                        + '\n`' + config.prefix + 'schedule ' + times.BINUS_DATE_FORMAT + '`'
-                        + '\n'
-                        + '\nExample: `' + config.prefix + 'schedule ' + currentDate + '`'
+                        + `\n`
+                        + `\nYou can view the classes within a date by using`
+                        + `\n\`${prefix}schedule ${times.BINUS_DATE_FORMAT}\``
+                        + `\n`
+                        + `\nExample: \`${prefix}schedule ${currentDate}\``
                     ).setColor('RANDOM');
 
                 await channel.send(embed);
@@ -118,12 +118,12 @@ class ScheduleCommand extends Command {
                         throw Error();
                 } catch (_) {
                     return await channel.send(
-                        'Cannot process the given arguments!'
-                        + '\n'
-                        + '\nIf you want to use a custom date format to get schedules'
-                        + '\nThen use the format of `' + times.BINUS_DATE_FORMAT + '`!'
-                        + '\n'
-                        + '\nExample: `' + currentDate + '`'
+                        `Cannot process the given arguments!`
+                        + `\n`
+                        + `\nIf you want to use a custom date format to get schedules`
+                        + `\nThen use the format of \`${times.BINUS_DATE_FORMAT}\`!`
+                        + `\n`
+                        + `\nExample: \`${currentDate}\``
                     );
                 }
 
@@ -137,7 +137,7 @@ class ScheduleCommand extends Command {
                 }
 
                 if (!foundSchedule)
-                    await channel.send('No classes on ' + formattedDate + '!');
+                    await channel.send(`No classes on ${formattedDate}!`);
 
                 break;
             }

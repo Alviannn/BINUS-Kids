@@ -53,7 +53,7 @@ export type Notification = {
     link: string,
     /** the notification time */
     time: string
-};
+}
 
 export type Assignment = {
     /** the notification id */
@@ -70,7 +70,7 @@ export type Assignment = {
     link: string,
     /** the assignment path id, ex: `CHAR6034/015318/2010/CLC/20332` */
     pathId: string,
-};
+}
 
 export type NullableCommand = Command | null;
 
@@ -79,11 +79,23 @@ export type ScheduleResult = {
     last_fetch: string | null,
     /** All of the schedules */
     schedules: Schedule[]
-};
+}
 
-export type Config = {
-    prefix: string,
+export type BinusAccount = {
+    username: string,
+    password: string
+}
+
+export type ServerConfig = {
+    prefix?: string,
     schedules_channel: string,
     assignments_channel: string,
-    forums_channel: string
-};
+    forums_channel: string,
+    use_account: string,
+}
+
+export type Config = {
+    default_prefix: string,
+    binus_accounts: Record<string, BinusAccount>,
+    servers: Record<string, ServerConfig>,
+}

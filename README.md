@@ -1,6 +1,6 @@
 ## BINUS Kids
 
-This is a discord bot to receive BINUS class related updates.
+This is a discord bot to receive BINUS class related updates.<br>
 `NOTE: I will always make the codes of this bot to adapt to my own classes, so yeah`
 
 ##### Configuration Examples:

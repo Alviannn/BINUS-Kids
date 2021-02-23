@@ -1,13 +1,14 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 
 import { Message, TextChannel } from 'discord.js';
-import { Command, getConfig } from '../common/commons';
+import { Command, manager } from '../common/commons';
 
 class ClearCommand extends Command {
 
     public async execute(msg: Message, args: string[]): Promise<unknown> {
-        const { channel, member } = msg;
-        const config = getConfig();
+        const { guild, channel, member } = msg;
+
+        const prefix = manager.getPrefix(guild);
 
         if (!(channel instanceof TextChannel))
             return;
@@ -15,7 +16,7 @@ class ClearCommand extends Command {
         if (!member!.hasPermission('MANAGE_MESSAGES'))
             return await channel.send("You don't have enough permission!");
         if (!args[0])
-            return await channel.send(`**Usage:** ${config.prefix}clear <amount of messages>`);
+            return await channel.send(`**Usage:** ${prefix}clear <amount of messages>`);
 
         let amount = 0;
         try {
