@@ -4,7 +4,11 @@ import { Config } from './types';
 import { PresenceData, Client } from 'discord.js';
 import path from 'path';
 
+// -------------------------------------------------------------- //
+
 export let client: Client;
+
+// -------------------------------------------------------------- //
 
 /**
  * Gets the current config values
@@ -20,7 +24,7 @@ export function createClient(): void {
         status: 'online',
         activity: {
             type: 'WATCHING',
-            name: 'LC01 schedules'
+            name: 'BINUS Class Schedules'
         }
     };
 
