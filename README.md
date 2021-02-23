@@ -11,4 +11,4 @@ This is a discord bot to receive BINUS class related updates.
     ```
 
 2. Example config.json:
-    ![img](https://i.imgur.com/YZr8qjh.png)
+    ![img](https://i.imgur.com/QRFUuC5.png)

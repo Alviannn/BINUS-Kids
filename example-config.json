@@ -1,6 +1,6 @@
 {
-    "default-prefix": "--",
-    "binus-accounts": {
+    "default_prefix": "--",
+    "binus_accounts": {
         "wakanda-foreva": {
             "username": "user.name",
             "password": "pass123"
@@ -16,13 +16,13 @@
             "schedules_channel": "channel id",
             "assignments_channel": "channel id",
             "forums_channel": "channel id",
-            "use-account": "wakanda-foreva"
+            "use_account": "wakanda-foreva"
         },
         "server id 2": {
             "schedules_channel": "channel id",
             "assignments_channel": "channel id",
             "forums_channel": "channel id",
-            "use-account": "weeb's account"
+            "use_account": "weeb's account"
         }
     }
 }
