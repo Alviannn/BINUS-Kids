@@ -18,7 +18,7 @@
     "@types/luxon": "^1.26.1",
     "@types/node-fetch": "^2.5.8",
     "@types/tough-cookie": "^4.0.0",
-    "@typescript-eslint/eslint-plugin": "^4.15.2",
+    "@typescript-eslint/eslint-plugin": "^4.19.0",
     "@typescript-eslint/parser": "^4.16.1",
     "better-sqlite3": "^7.1.2",
     "cheerio": "^1.0.0-rc.5",
