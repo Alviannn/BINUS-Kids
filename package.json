@@ -20,7 +20,7 @@
     "@types/tough-cookie": "^4.0.0",
     "@typescript-eslint/eslint-plugin": "^4.24.0",
     "@typescript-eslint/parser": "^4.16.1",
-    "better-sqlite3": "^7.4.0",
+    "better-sqlite3": "^7.4.1",
     "cheerio": "^1.0.0-rc.5",
     "discord.js": "^12.5.3",
     "dotenv": "^8.2.0",
