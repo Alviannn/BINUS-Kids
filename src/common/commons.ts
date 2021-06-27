@@ -1,11 +1,13 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 
-import { Config } from './types';
-import { PresenceData, Client } from 'discord.js';
+import { Client, PresenceData } from 'discord.js';
+import fs from 'fs';
 import path from 'path';
+import { Config } from './types';
 
 // -------------------------------------------------------------- //
 
+/** the bot client instance */
 export let client: Client;
 
 // -------------------------------------------------------------- //
@@ -13,12 +15,20 @@ export let client: Client;
 /**
  * Gets the current config values
  */
-export function loadConfig(): Config {
+export function loadConfig(): Config | null {
     const resolved = path.resolve('./config.json');
-    return require(resolved) as Config;
+
+    try {
+        const content = fs.readFileSync(resolved, { encoding: 'utf8' });
+        return JSON.parse(content) as Config;
+    } catch (err) {
+        return null;
+    }
 }
 
-/** Handles creating a client object */
+/**
+ * Handles creating a client object
+ */
 export function createClient(): void {
     const presenceData: PresenceData = {
         status: 'online',
@@ -33,13 +43,10 @@ export function createClient(): void {
 
 // -------------------------------------------------------------- //
 
-export * from './types';
-
-export * from './others/database';
-export * from './others/times';
-
-export * from './managers/manager';
-
-export * from './binmay/schedules';
 export * from './binmay/binmay';
 export * from './binmay/onlinejudge';
+export * from './binmay/schedules';
+export * from './managers/manager';
+export * from './others/database';
+export * from './others/times';
+export * from './types';

@@ -1,6 +1,6 @@
 {
   "name": "binus-kids-bot",
-  "version": "1.9.1",
+  "version": "1.9.2",
   "description": "BINUS scraper discord bot",
   "main": "dist/index.js",
   "author": "Alviannn",
