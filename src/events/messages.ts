@@ -10,16 +10,14 @@ client.on('message', async (msg) => {
         return await channel.send("The bot doesn't accept private messages!");
 
     const config = loadConfig();
+    const prefix = manager.getPrefix();
 
-    const conf = config.servers[guild.id];
-    const prefix = manager.getPrefix(guild);
-
-    const isAdmin = (author.id === client.user!.id) || (author.id === '217970261230747648');
-    const isSpecialChannels = (channel.id === conf.schedules_channel) || (channel.id === conf.assignments_channel) || (channel.id === conf.forums_channel);
+    const isAdmin = author.id === client.user!.id;
+    const isSpecialChannels = (channel.id === config.channels.forums) || (channel.id === config.channels.assignments) || (channel.id === config.channels.schedules);
 
     // prevents normal user from sending messages to some channels
     if (!isAdmin && isSpecialChannels) {
-        await msg.delete({ timeout: 300 });
+        await msg.delete({ timeout: 800 });
         return;
     }
 

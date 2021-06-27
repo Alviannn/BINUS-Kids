@@ -1,6 +1,6 @@
 {
   "name": "binus-kids-bot",
-  "version": "1.10.0",
+  "version": "1.10.1",
   "description": "BINUS scraper discord bot",
   "main": "dist/index.js",
   "author": "Alviannn",
@@ -9,8 +9,10 @@
     "url": "https://github.com/Alviannn/BINUS-Kids/"
   },
   "scripts": {
-    "start": "node clear.js && tsc && node dist/index.js",
-    "test": "node clear.js && tsc && node dist/test.js"
+    "start": "yarn compile && node dist/index.js",
+    "clean": "node clear.js",
+    "compile": "yarn clean && tsc",
+    "test": "yarn compile && node dist/test.js"
   },
   "dependencies": {
     "@types/better-sqlite3": "^5.4.1",

@@ -3,8 +3,7 @@
 import { MessageEmbed, TextChannel } from 'discord.js';
 import dotenv from 'dotenv';
 import { DateTime } from 'luxon';
-import { createClient, times, schedules, client, manager, database, binusmaya, loadConfig } from './common/commons';
-import { ServerConfig } from './common/types';
+import { binusmaya, client, createClient, database, loadConfig, manager, schedules, times } from './common/commons';
 
 dotenv.config();
 createClient();
@@ -27,79 +26,73 @@ setInterval(async () => {
         return;
 
     const config = loadConfig();
-    for (const key of Object.keys(config.servers)) {
-        const conf = config.servers[key];
-        if (!conf)
+    const channel = client.channels.cache.get(config.channels.schedules);
+    // schedules channel must exists and must be a text channel
+    if (!channel || !(channel instanceof TextChannel))
+        return;
+
+    // if no last auto update date was found
+    // we're going to check on the #schedules channel for it
+    //
+    // this is to prevent schedules re-post when the bot is updated at that day
+    // this is happening because of Heroku not saving files every deployments
+    if (!database.lastAutoUpdateSchedule()) {
+        const msgs = channel.messages.cache.size ? channel.messages.cache : await channel.messages.fetch();
+        const msgList = msgs.array()
+            .filter(m => m.author === client.user && m.content.includes('schedules') && m.content.includes('@everyone'));
+
+        // if found messages where the bot had posted for auto updates
+        // get the timestamp and then save it for the last auto update date
+        if (msgList) {
+            const { createdTimestamp } = msgList[0];
+            const lastPostDate = DateTime.fromMillis(createdTimestamp)
+                .setZone('Asia/Bangkok', { keepLocalTime: false })
+                .toFormat(times.BINUS_DATE_FORMAT);
+
+            database.lastAutoUpdateSchedule(lastPostDate);
+        }
+    }
+
+    const currentDate = times.asiaDate().toFormat(times.BINUS_DATE_FORMAT);
+    // only post schedules if a day has passed
+    if (currentDate === database.lastAutoUpdateSchedule())
+        return;
+
+    const scheduleList = await schedules.getSchedules();
+    // don't continue if no schedules are found
+    // this is because the grabber failed to grab the schedules
+    if (!scheduleList)
+        return;
+
+    // deletes all messages on schedules channel
+    await channel.bulkDelete(100);
+
+    // prints all schedules
+    let foundSchedules = false;
+    for (const schedule of scheduleList) {
+        if (schedule.date !== currentDate)
             continue;
 
-        const channel = client.channels.cache.get(conf.schedules_channel);
-        // schedules channel must exists and must be a text channel
-        if (!channel || !(channel instanceof TextChannel))
-            return;
+        foundSchedules = true;
 
-        // todo: add multiserver support for lastAutoUpdateSchedule
-
-        // if no last auto update date was found
-        // we're going to check on the #schedules channel for it
-        //
-        // this is to prevent schedules re-post when the bot is updated at that day
-        // this is happening because of Heroku not saving files every deployments
-        if (!database.lastAutoUpdateSchedule()) {
-            const msgs = channel.messages.cache.size ? channel.messages.cache : await channel.messages.fetch();
-            const msgList = msgs.array()
-                .filter(m => m.author === client.user && m.content.includes('schedules') && m.content.includes('@everyone'));
-
-            // if found messages where the bot had posted for auto updates
-            // get the timestamp and then save it for the last auto update date
-            if (msgList) {
-                const { createdTimestamp } = msgList[0];
-                const lastPostDate = DateTime.fromMillis(createdTimestamp)
-                    .setZone('Asia/Bangkok', { keepLocalTime: false })
-                    .toFormat(times.BINUS_DATE_FORMAT);
-
-                database.lastAutoUpdateSchedule(lastPostDate);
-            }
-        }
-
-        const currentDate = times.asiaDate().toFormat(times.BINUS_DATE_FORMAT);
-        // only post schedules if a day has passed
-        if (currentDate === database.lastAutoUpdateSchedule())
-            return;
-
-        const scheduleList = await schedules.getSchedules();
-        // don't continue if no schedules are found
-        // this is because the grabber failed to grab the schedules
-        if (!scheduleList)
-            return;
-
-        // deletes all messages on schedules channel
-        await channel.bulkDelete(100);
-
-        // prints all schedules
-        let foundSchedules = false;
-        for (const schedule of scheduleList) {
-            if (schedule.date !== currentDate)
-                continue;
-
-            foundSchedules = true;
-
-            const embed = schedules.formatEmbedSchedule(client.user!, schedule);
-            await channel.send(embed);
-        }
-
-        if (!foundSchedules)
-            await channel.send('@everyone Yay! No schedules today!');
-        else
-            await channel.send("@everyone Today schedules are here!");
-
-        database.lastAutoUpdateSchedule(currentDate);
+        const embed = schedules.formatEmbedSchedule(client.user!, schedule);
+        await channel.send(embed);
     }
+
+    if (!foundSchedules)
+        await channel.send('@everyone Yay! No schedules today!');
+    else
+        await channel.send("@everyone Today schedules are here!");
+
+    database.lastAutoUpdateSchedule(currentDate);
 }, 120_000);
 
 // ---------------------------------------------------------------------------------------------- //
 
-async function postAssignments(conf: ServerConfig) {
-    const channel = client.channels.cache.get(conf.assignments_channel);
+async function postAssignments() {
+    const config = loadConfig();
+    const channel = client.channels.cache.get(config.channels.assignments);
+
     // schedules channel must exists and must be a text channel
     if (!channel || !(channel instanceof TextChannel))
         return;
@@ -133,8 +126,10 @@ async function postAssignments(conf: ServerConfig) {
         await channel.send("@everyone I found assignments!");
 }
 
-async function postForums(conf: ServerConfig) {
-    const channel = client.channels.cache.get(conf.forums_channel);
+async function postForums() {
+    const config = loadConfig();
+    const channel = client.channels.cache.get(config.channels.forums);
+
     // schedules channel must exists and must be a text channel
     if (!channel || !(channel instanceof TextChannel))
         return;
@@ -181,15 +176,6 @@ setInterval(async () => {
             return;
     }
 
-    const config = loadConfig();
-
-    // loops through all server IDs to get each channel IDs accordingly
-    for (const key of Object.keys(config.servers)) {
-        const conf = config.servers[key];
-        if (!conf)
-            continue;
-
-        await postAssignments(conf);
-        await postForums(conf);
-    }
+    await postAssignments();
+    await postForums();
 }, 300_000);

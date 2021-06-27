@@ -2,26 +2,25 @@
 
 const fs = require('fs');
 const path = require('path');
+const distDir = './dist';
 
-/**
- * @param {fs.PathLike} dirPath 
- */
-function deleteDistributions(dirPath) {
-    if (!fs.existsSync(dirPath))
+function deleteRecursively(filePath) {
+    if (!fs.existsSync(filePath)) {
         return;
-    if (!fs.lstatSync(dirPath).isDirectory())
-        return;
-
-    for (const file of fs.readdirSync(dirPath)) {
-        const fullPath = path.join(dirPath, file);
-
-        if (fs.lstatSync(fullPath).isDirectory())
-            deleteDistributions(fullPath);
-        else
-            fs.unlinkSync(fullPath);
     }
 
-    fs.rmdirSync(dirPath);
+    if (!fs.lstatSync(filePath).isDirectory()) {
+        fs.unlinkSync(filePath);
+    } else {
+        const files = fs.readdirSync(filePath);
+
+        for (const file of files) {
+            const fullPath = path.join(filePath, file);
+            deleteRecursively(fullPath);
+        }
+
+        fs.rmdirSync(filePath);
+    }
 }
 
-deleteDistributions('./dist');
+deleteRecursively(distDir);

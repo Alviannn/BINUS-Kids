@@ -15,15 +15,11 @@ export let client: Client;
 /**
  * Gets the current config values
  */
-export function loadConfig(): Config | null {
+export function loadConfig(): Config {
     const resolved = path.resolve('./config.json');
 
-    try {
-        const content = fs.readFileSync(resolved, { encoding: 'utf8' });
-        return JSON.parse(content) as Config;
-    } catch (err) {
-        return null;
-    }
+    const content = fs.readFileSync(resolved, { encoding: 'utf8' });
+    return JSON.parse(content) as Config;
 }
 
 /**
@@ -50,3 +46,4 @@ export * from './managers/manager';
 export * from './others/database';
 export * from './others/times';
 export * from './types';
+

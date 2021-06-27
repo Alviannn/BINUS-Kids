@@ -2,14 +2,12 @@
 import { client, manager } from '../common/commons';
 
 client.on('message', async (msg) => {
-    const { mentions, content, guild } = msg;
+    const { mentions, content } = msg;
+
     if (!content.match(/<@!?[0-9]{18}>/gi))
         return;
 
-    const clientUser = client.user;
-    const member = guild!.member(clientUser!);
-    const prefix = manager.getPrefix(guild);
-
-    if (mentions.members!.array()[0] === member)
+    const prefix = manager.getPrefix();
+    if (mentions.users.array()[0] === client.user!)
         await msg.reply(`The bot prefix is **${prefix}**!`);
 });
