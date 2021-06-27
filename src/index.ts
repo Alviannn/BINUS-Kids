@@ -43,7 +43,7 @@ setInterval(async () => {
         // we're going to check on the #schedules channel for it
         //
         // this is to prevent schedules re-post when the bot is updated at that day
-        // this is happening because of Heroku not saving files every deployments 
+        // this is happening because of Heroku not saving files every deployments
         if (!database.lastAutoUpdateSchedule()) {
             const msgs = channel.messages.cache.size ? channel.messages.cache : await channel.messages.fetch();
             const msgList = msgs.array()

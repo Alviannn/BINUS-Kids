@@ -5,8 +5,8 @@ import fs, { PathLike } from 'fs';
 import path from 'path';
 import { Command, NullableCommand, loadConfig } from '../commons';
 
-/** 
- * The common management utilities 
+/**
+ * The common management utilities
  */
 export namespace manager {
 
@@ -15,7 +15,7 @@ export namespace manager {
 
     /**
      * Loads all commands
-     * 
+     *
      * @param cmdsPath the commands folder path
      */
     export function loadCommands(dirPath: PathLike): void {
@@ -24,8 +24,8 @@ export namespace manager {
         if (!fs.lstatSync(dirPath).isDirectory())
             throw Error('File path is not a directory!');
 
-        const commandMap = module.exports.manager.commandMap;
-        for (const file of fs.readdirSync(dirPath)) {
+        const files = fs.readdirSync(dirPath);
+        for (const file of files) {
             const fullPath = path.join(dirPath.toString(), file);
 
             // if another directory is found, do recursion
@@ -45,7 +45,7 @@ export namespace manager {
             if (!commandModule)
                 continue;
 
-            const command = commandModule.command;
+            const { command } = commandModule;
             if (!command || !(command instanceof Command))
                 continue;
 
@@ -56,7 +56,7 @@ export namespace manager {
 
     /**
      * Loads all events
-     * 
+     *
      * @param eventsPath the events directory path
      */
     export function loadEvents(eventsPath: PathLike): void {
@@ -88,7 +88,7 @@ export namespace manager {
 
     /**
      * Finds a command
-     * 
+     *
      * @param name the possible command name
      */
     export function findCommand(name: string): NullableCommand {
@@ -96,9 +96,6 @@ export namespace manager {
             // attempts to find the command by the name
             if (cmd.name.toLowerCase() === name.toLowerCase())
                 return cmd;
-
-            if (!cmd.aliases)
-                continue;
 
             // attempts to find the command by it's aliases
             for (const alias of cmd.aliases) {

@@ -1,7 +1,7 @@
 import { DateTime } from 'luxon';
 
-/** 
- * The common times utilities 
+/**
+ * The common times utilities
  */
 export namespace times {
 

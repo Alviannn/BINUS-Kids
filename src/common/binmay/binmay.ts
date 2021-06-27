@@ -4,8 +4,8 @@
 import cheerio from 'cheerio';
 import { execall } from 'execall2';
 import { Notification } from '../commons';
-import { Assignment } from '../types';
 import { HttpClient } from '../extrafetch';
+import { Assignment } from '../types';
 
 export namespace binusmaya {
 
@@ -17,8 +17,8 @@ export namespace binusmaya {
         'Referer': BINMAY_URL + '/newStudent/'
     });
 
-    /** 
-     * Login to binusmaya 
+    /**
+     * Login to binusmaya
      */
     export async function login(): Promise<boolean> {
         try {
@@ -64,7 +64,7 @@ export namespace binusmaya {
         }
     }
 
-    /** 
+    /**
      * Logout from binusmaya
      */
     export async function logout(): Promise<boolean> {
@@ -80,8 +80,8 @@ export namespace binusmaya {
         }
     }
 
-    /** 
-     * Determines if we still have the session to binusmaya or not 
+    /**
+     * Determines if we still have the session to binusmaya or not
      */
     export async function hasSession(): Promise<boolean> {
         const resp = await client.get(`${BINMAY_URL}/services/ci/index.php/staff/init/check_session`);
@@ -117,8 +117,8 @@ export namespace binusmaya {
         }
     }
 
-    /** 
-     * Gets all binusmaya (unread) assignments 
+    /**
+     * Gets all binusmaya (unread) assignments
      */
     export async function getUnreadAssignments(): Promise<Assignment[]> {
         const resp = await client.post(`${BINMAY_URL}/services/ci/index.php/notification/getUnreadNotificationList`);
@@ -153,8 +153,8 @@ export namespace binusmaya {
         }
     }
 
-    /** 
-     * Gets all binusmaya (unread) forums 
+    /**
+     * Gets all binusmaya (unread) forums
      */
     export async function getUnreadForums(): Promise<Notification[]> {
         const resp = await client.post(`${BINMAY_URL}/services/ci/index.php/notification/getUnreadNotificationList`);
@@ -185,8 +185,8 @@ export namespace binusmaya {
         }
     }
 
-    /** 
-     * Reads a notification 
+    /**
+     * Reads a notification
      */
     export async function readNotification(notifId: string): Promise<boolean> {
         client.headers['Content-Type'] = 'application/json';

@@ -1,8 +1,8 @@
 import sqlite from 'better-sqlite3';
 import fs from 'fs';
 
-/** 
- * The common database utilities 
+/**
+ * The common database utilities
  */
 export namespace database {
 

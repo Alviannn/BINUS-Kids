@@ -174,8 +174,8 @@ export namespace schedules {
         return schedules;
     }
 
-    /** 
-     * Handles grabbing the schedules 
+    /**
+     * Handles grabbing the schedules
      */
     export async function getSchedules(): Promise<Schedule[]> {
         const result = _readSchedules();

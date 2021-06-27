@@ -17,7 +17,7 @@ export abstract class Command {
 
     /**
      * Executes the command asynchronously
-     * 
+     *
      * @param msg the message instance
      * @param args the arguments
      */

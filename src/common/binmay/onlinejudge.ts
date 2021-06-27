@@ -1,8 +1,8 @@
 /* eslint-disable no-inner-declarations */
 
+import cheerio from 'cheerio';
 import got, { Got } from 'got';
 import { CookieJar } from 'tough-cookie';
-import cheerio from 'cheerio';
 import { database, times } from '../commons';
 
 export namespace onlinejudge {
@@ -105,7 +105,7 @@ export namespace onlinejudge {
         // iterates over all contest html
         rawContests.each(function (this: unknown, _, elem) {
             elem = elem as cheerio.TagElement;
-            
+
             const id = elem.attribs['value'];
             const title = $(this).text();
 

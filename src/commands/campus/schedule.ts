@@ -149,5 +149,5 @@ class ScheduleCommand extends Command {
 export const command = new ScheduleCommand(
     'schedule',
     ['sched', 'class', 'classes'],
-    'Checks the BINUS class schedules for LC-01 class'
+    'Checks the BINUS class schedules'
 );

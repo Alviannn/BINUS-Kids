@@ -104,8 +104,8 @@ export class HttpClient {
         return { ...this.headers, 'Cookie': cookieReady };
     }
 
-    /** 
-     * Grabs the cookies from the response 
+    /**
+     * Grabs the cookies from the response
      */
     private grabCookies(headers: HeadersType) {
         const setcookies = headers['set-cookie'] as string[] | string;
@@ -205,7 +205,7 @@ export class HttpClient {
 
     /**
      * Handles POST request to a website
-     * 
+     *
      * @param body the body
      */
     public async post(url: string, options?: Options): Promise<Response> {
