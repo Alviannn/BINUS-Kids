@@ -1,14 +1,29 @@
 ## BINUS Kids
 
-This is a discord bot to receive BINUS class related updates.<br>
-`NOTE: I will always make the codes of this bot to adapt to my own classes, so yeah`
+This is a discord bot that scrapes data from BINUS website (binmay).<br>
 
-##### Configuration Examples:
+Features:
+* Get class schedules
+* Get recently posted assignments
+* Get recently posted forums
 
-1. Example .env:
+#### Configuration Examples:
+
+1. Example `.env` file:
     ```env
     TOKEN=discord bot token
+    BINUS_USER=my email
+    BINUS_PASS=my password
     ```
 
-2. Example config.json:
-    ![img](https://i.imgur.com/QRFUuC5.png)
+2. Example `config.json` file:
+    ```json
+    {
+        "prefix": "--",
+        "channels": {
+            "schedules": "channel id",
+            "assignments": "channel id",
+            "forums": "channel id"
+        }
+    }
+    ```
