@@ -7,7 +7,9 @@ import { Command, schedules, times, manager } from '../../common/commons';
 class ScheduleCommand extends Command {
 
     public async execute(msg: Message, args: string[]): Promise<unknown> {
-        const { guild, channel, client } = msg;
+        const { channel, client } = msg;
+        const prefix = manager.getPrefix();
+
         if (!(channel instanceof TextChannel))
             return;
 
@@ -15,7 +17,6 @@ class ScheduleCommand extends Command {
         const currentDate = asiaDate.toFormat(times.BINUS_DATE_FORMAT);
         const tomorrowDate = asiaDate.plus({ days: 1 }).toFormat(times.BINUS_DATE_FORMAT);
 
-        const prefix = manager.getPrefix(guild);
 
         if (!args[0]) {
             const embed = new MessageEmbed()

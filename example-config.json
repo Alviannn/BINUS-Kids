@@ -1,28 +1,8 @@
 {
-    "default_prefix": "--",
-    "binus_accounts": {
-        "wakanda-foreva": {
-            "username": "user.name",
-            "password": "pass123"
-        },
-        "weeb's account": {
-            "username": "user.name",
-            "password": "pass123"
-        }
-    },
-    "servers": {
-        "server id 1": {
-            "prefix": "!",
-            "schedules_channel": "channel id",
-            "assignments_channel": "channel id",
-            "forums_channel": "channel id",
-            "use_account": "wakanda-foreva"
-        },
-        "server id 2": {
-            "schedules_channel": "channel id",
-            "assignments_channel": "channel id",
-            "forums_channel": "channel id",
-            "use_account": "weeb's account"
-        }
+    "prefix": "--",
+    "channels": {
+        "schedules": "channel id",
+        "assignments": "channel id",
+        "forums": "channel id"
     }
 }

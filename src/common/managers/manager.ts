@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 
-import { Guild } from 'discord.js';
 import fs, { PathLike } from 'fs';
 import path from 'path';
 import { Command, NullableCommand, loadConfig } from '../commons';
@@ -110,13 +109,9 @@ export namespace manager {
     /**
      * Gets the command prefix according to the guild instance
      */
-    export function getPrefix(guild: Guild | undefined | null): string {
+    export function getPrefix(): string {
         const config = loadConfig();
-        if (!guild)
-            return config.default_prefix;
-
-        const conf = config.servers[guild.id];
-        return conf ? (conf.prefix || config.default_prefix) : config.default_prefix;
+        return config ? config.prefix : '--';
     }
 
 }

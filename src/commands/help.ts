@@ -7,17 +7,15 @@ class HelpCommand extends Command {
         const { commandMap } = manager;
         const { author, client, channel } = msg;
 
-        if (!args[0]) {
-            const result = [] as string[];
-            for (const key of commandMap.keys())
-                result.push('`' + key + '`');
+        const embed = new MessageEmbed()
+            .setColor('RANDOM')
+            .setThumbnail(client.user!.displayAvatarURL())
+            .setFooter(`Executed by ${author.tag}`, author.displayAvatarURL());
 
-            const embed = new MessageEmbed()
-                .setAuthor('Available Commands')
-                .setColor('RANDOM')
-                .setThumbnail(client.user!.displayAvatarURL())
-                .setDescription(`${result.join(', ')}`)
-                .setFooter(`Executed by ${author.tag}`, author.displayAvatarURL());
+        if (!args[0]) {
+            const results = [...commandMap.keys()].map(key => '`' + key + '`');
+            embed.setAuthor('Available Commands')
+                .setDescription(`${results.join(', ')}`);
 
             return await channel.send(embed);
         }
@@ -28,14 +26,10 @@ class HelpCommand extends Command {
         if (!command)
             return await channel.send('Cannot find any command named `' + args[0] + '`!');
 
-        const embed = new MessageEmbed()
-            .setAuthor('Command Information')
-            .setColor('RANDOM')
-            .setThumbnail(client.user!.displayAvatarURL())
+        embed.setAuthor('Command Information')
             .addField('Name', command.name)
             .addField('Aliases', `[${command.aliases ? command.aliases.join(', ') : ''}]`)
-            .addField('Description', command.desc ? command.desc : '_No description_')
-            .setFooter(`Executed by ${author.tag}`, author.displayAvatarURL());
+            .addField('Description', command.desc ? command.desc : '_No description_');
 
         return await channel.send(embed);
     }

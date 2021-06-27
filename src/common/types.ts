@@ -81,21 +81,11 @@ export type ScheduleResult = {
     schedules: Schedule[]
 }
 
-export type BinusAccount = {
-    username: string,
-    password: string
-}
-
-export type ServerConfig = {
-    prefix?: string,
-    schedules_channel: string,
-    assignments_channel: string,
-    forums_channel: string,
-    use_account: string,
-}
-
 export type Config = {
-    default_prefix: string,
-    binus_accounts: Record<string, BinusAccount>,
-    servers: Record<string, ServerConfig>,
+    prefix: string,
+    channels: {
+        schedules: string,
+        assignments: string,
+        forums: string
+    }
 }

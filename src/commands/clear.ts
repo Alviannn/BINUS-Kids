@@ -6,9 +6,8 @@ import { Command, manager } from '../common/commons';
 class ClearCommand extends Command {
 
     public async execute(msg: Message, args: string[]): Promise<unknown> {
-        const { guild, channel, member } = msg;
-
-        const prefix = manager.getPrefix(guild);
+        const { channel, member } = msg;
+        const prefix = manager.getPrefix();
 
         if (!(channel instanceof TextChannel))
             return;
@@ -28,7 +27,7 @@ class ClearCommand extends Command {
         if (amount > 100)
             return await channel.send('That amount is WAAAAYYY TOO HIGH! Limit is 100 my men!');
 
-        channel.bulkDelete(amount)
+        await channel.bulkDelete(amount)
             .then(async (msgs) => await channel.send(`Successfully deleted ${msgs.size}/${amount} messages!`))
             .catch(async () => await channel.send('Failed to clear messages!'));
     }
@@ -38,5 +37,5 @@ class ClearCommand extends Command {
 export const command = new ClearCommand(
     'clear',
     ['purge'],
-    'Clears a specified amount of messages'
+    'Clears specified amount of messages within a discord channel'
 );

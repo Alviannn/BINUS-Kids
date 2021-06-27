@@ -6,8 +6,8 @@ import { Command, manager } from '../common/commons';
 class InfoCommand extends Command {
 
     public async execute(msg: Message): Promise<unknown> {
-        const { guild, channel, client } = msg;
-        const prefix = manager.getPrefix(guild);
+        const { channel, client } = msg;
+        const prefix = manager.getPrefix();
 
         const packageJson = require('../../package.json');
         const embed = new MessageEmbed()
