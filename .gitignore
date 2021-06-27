@@ -4,3 +4,5 @@
 /databases/
 /dist/
 /backups/
+
+deploy.py
