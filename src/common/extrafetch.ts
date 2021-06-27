@@ -112,7 +112,7 @@ export class HttpClient {
         if (!setcookies)
             return;
 
-        console.log(setcookies);
+        // console.log(setcookies);
         const rawcookies = (Array.isArray(setcookies) ? setcookies.join('; ') : setcookies).split('; ');
 
         for (const map of rawcookies) {
@@ -209,10 +209,9 @@ export class HttpClient {
      * @param body the body
      */
     public async post(url: string, options?: Options): Promise<Response> {
-        const bodyRes = options?.bodyValue ? this.parseBody(options.bodyValue) : undefined;
-
-        console.log(bodyRes);
-        console.log(this.headersWithCookies());
+        // const bodyRes = options?.bodyValue ? this.parseBody(options.bodyValue) : undefined;
+        // console.log(bodyRes);
+        // console.log(this.headersWithCookies());
 
         const resp = await fetch(url, {
             headers: this.useSession ? this.headersWithCookies() : this.headers,

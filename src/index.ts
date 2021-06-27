@@ -43,7 +43,7 @@ setInterval(async () => {
 
         // if found messages where the bot had posted for auto updates
         // get the timestamp and then save it for the last auto update date
-        if (msgList) {
+        if (msgList.length) {
             const { createdTimestamp } = msgList[0];
             const lastPostDate = DateTime.fromMillis(createdTimestamp)
                 .setZone('Asia/Bangkok', { keepLocalTime: false })
