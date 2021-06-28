@@ -33,7 +33,7 @@ export namespace binusmaya {
             const passId = $('input[placeholder="Password"]').attr('name')!;
             const submId = $('input[type="submit"]').attr('name')!;
 
-            const loaderUrl = cheerio($('script')[4]).attr('src')!;
+            const loaderUrl = cheerio($('script')[4]).attr('src')!.substr(2);
             const loaderResp = await client.get(BINMAY_URL + loaderUrl);
 
             const regex = /name="([^"]+)" value="([^"]+)"/g;

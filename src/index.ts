@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 
-import { MessageEmbed, TextChannel } from 'discord.js';
+import assert from 'assert';
+import { Channel, MessageEmbed, TextChannel } from 'discord.js';
 import dotenv from 'dotenv';
 import { DateTime } from 'luxon';
 import { binusmaya, client, createClient, database, loadConfig, manager, schedules, times } from './common/commons';
@@ -91,11 +92,16 @@ setInterval(async () => {
 
 async function postAssignments() {
     const config = loadConfig();
-    const channel = client.channels.cache.get(config.channels.assignments);
 
-    // schedules channel must exists and must be a text channel
-    if (!channel || !(channel instanceof TextChannel))
+    let channel: Channel;
+    try {
+        // channel must exist and be text channel
+        channel = await client.channels.fetch(config.channels.assignments);
+        assert(channel instanceof TextChannel);
+    } catch (err) {
+        console.log('[ERROR]: Failed to get assignments channel!');
         return;
+    }
 
     const assigns = await binusmaya.getUnreadAssignments();
     if (!assigns)
@@ -128,11 +134,16 @@ async function postAssignments() {
 
 async function postForums() {
     const config = loadConfig();
-    const channel = client.channels.cache.get(config.channels.forums);
 
-    // schedules channel must exists and must be a text channel
-    if (!channel || !(channel instanceof TextChannel))
+    let channel: Channel;
+    try {
+        // channel must exist and be text channel
+        channel = await client.channels.fetch(config.channels.forums);
+        assert(channel instanceof TextChannel);
+    } catch (err) {
+        console.log('[ERROR]: Failed to get forums channel!');
         return;
+    }
 
     const notifs = await binusmaya.getUnreadForums();
     if (!notifs)
@@ -178,4 +189,4 @@ setInterval(async () => {
 
     await postAssignments();
     await postForums();
-}, 300_000);
+}, 120_000);
