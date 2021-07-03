@@ -19,11 +19,12 @@ Features:
 2. Example `config.json` file:
     ```json
     {
-        "prefix": "--",
+        "prefix": "the bot prefix",
+        "user_mention": "the user id to be mentioned every events (like schedules, assignments, and forums)",
         "channels": {
-            "schedules": "channel id",
-            "assignments": "channel id",
-            "forums": "channel id"
+            "schedules": "channel id to post schedules",
+            "assignments": "channel id to post assignments",
+            "forums": "channel id to post forums"
         }
     }
     ```
