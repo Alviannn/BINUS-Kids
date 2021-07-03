@@ -83,6 +83,7 @@ export type ScheduleResult = {
 
 export type Config = {
     prefix: string,
+    user_mention: string,
     channels: {
         schedules: string,
         assignments: string,

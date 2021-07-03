@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 
 import assert from 'assert';
-import { Channel, MessageEmbed, TextChannel } from 'discord.js';
+import { Channel, MessageEmbed, TextChannel, User } from 'discord.js';
 import dotenv from 'dotenv';
 import { DateTime } from 'luxon';
 import { binusmaya, client, createClient, database, loadConfig, manager, schedules, times } from './common/commons';
@@ -80,17 +80,18 @@ setInterval(async () => {
         await channel.send(embed);
     }
 
+    const user = await client.users.fetch(config.user_mention);
     if (!foundSchedules)
-        await channel.send('@everyone Yay! No schedules today!');
+        await channel.send(`${user} Yay! No schedules today!`);
     else
-        await channel.send("@everyone Today schedules are here!");
+        await channel.send(`${user} Today schedules are here!`);
 
     database.lastAutoUpdateSchedule(currentDate);
 }, 120_000);
 
 // ---------------------------------------------------------------------------------------------- //
 
-async function postAssignments() {
+async function postAssignments(user: User) {
     const config = loadConfig();
 
     let channel: Channel;
@@ -129,10 +130,10 @@ async function postAssignments() {
     }
 
     if (foundAssignments)
-        await channel.send("@everyone I found assignments!");
+        await channel.send(`${user} I found assignments!`);
 }
 
-async function postForums() {
+async function postForums(user: User) {
     const config = loadConfig();
 
     let channel: Channel;
@@ -170,7 +171,7 @@ async function postForums() {
     }
 
     if (foundForums)
-        await channel.send("@everyone I found forums!");
+        await channel.send(`${user} I found forums!`);
 }
 
 // ---------------------------------------------------------------------------------------------- //
@@ -187,6 +188,9 @@ setInterval(async () => {
             return;
     }
 
-    await postAssignments();
-    await postForums();
+    const config = loadConfig();
+    const user = await client.users.fetch(config.user_mention);
+
+    await postAssignments(user);
+    await postForums(user);
 }, 120_000);

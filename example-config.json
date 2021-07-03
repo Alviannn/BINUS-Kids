@@ -1,8 +1,0 @@
-{
-    "prefix": "--",
-    "channels": {
-        "schedules": "channel id",
-        "assignments": "channel id",
-        "forums": "channel id"
-    }
-}

@@ -1,0 +1,9 @@
+{
+    "prefix": "--",
+    "user_mention": "0123456789",
+    "channels": {
+        "schedules": "9876543210",
+        "assignments": "9876543210",
+        "forums": "9876543210"
+    }
+}
