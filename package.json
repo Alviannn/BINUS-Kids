@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "@types/better-sqlite3": "^5.4.2",
-    "@types/cheerio": "^0.22.29",
+    "@types/cheerio": "^0.22.30",
     "@types/luxon": "^1.27.0",
     "@types/node-fetch": "^2.5.10",
     "@types/tough-cookie": "^4.0.1",
