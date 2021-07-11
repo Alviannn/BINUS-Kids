@@ -15,7 +15,7 @@
     "test": "yarn compile && node dist/test.js"
   },
   "dependencies": {
-    "@types/better-sqlite3": "^5.4.2",
+    "@types/better-sqlite3": "^5.4.3",
     "@types/cheerio": "^0.22.29",
     "@types/luxon": "^1.27.0",
     "@types/node-fetch": "^2.5.10",
