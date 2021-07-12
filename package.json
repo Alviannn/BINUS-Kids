@@ -21,7 +21,7 @@
     "@types/node-fetch": "^2.5.11",
     "@types/tough-cookie": "^4.0.1",
     "@typescript-eslint/eslint-plugin": "^4.28.2",
-    "@typescript-eslint/parser": "^4.28.2",
+    "@typescript-eslint/parser": "^4.28.3",
     "better-sqlite3": "^7.4.1",
     "cheerio": "^1.0.0-rc.10",
     "discord.js": "^12.5.3",
