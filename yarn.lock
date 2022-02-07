@@ -87,21 +87,21 @@
     "@nodelib/fs.scandir" "2.1.5"
     fastq "^1.6.0"
 
-"@regexp-cjk/clone-regexp@^1.0.8":
-  version "1.0.8"
-  resolved "https://registry.yarnpkg.com/@regexp-cjk/clone-regexp/-/clone-regexp-1.0.8.tgz#c3b966f833681d56e5fe58218727bf48d3badf19"
-  integrity sha512-Dw6JP5OELMsZ66h9f61C9M2YsZDzLMPHh65D0dlgp5YVrRBatqAABaVHWX3FnYqH2ahAoNedi802SyrY+PaZkA==
+"@regexp-cjk/clone-regexp@^1.0.20":
+  version "1.0.20"
+  resolved "https://registry.yarnpkg.com/@regexp-cjk/clone-regexp/-/clone-regexp-1.0.20.tgz#72c8e1ba74d693182a4c1218d20994b39a2546a7"
+  integrity sha512-zRjxeWYkJAtVJZqInjyiX4gJz7dB9pGyi70Q9tU+Eo4BvEZiYGLdfWiwplqc7Y1xYB172FKwfj4RLo4+om2lDw==
   dependencies:
-    "@regexp-cjk/rewrite-flags" "^1.0.8"
+    "@regexp-cjk/rewrite-flags" "^1.0.17"
     clone-regexp "< 3 >= 2.2"
-    tslib "^2.3.0"
+    tslib "^2.3.1"
 
-"@regexp-cjk/rewrite-flags@^1.0.8":
-  version "1.0.8"
-  resolved "https://registry.yarnpkg.com/@regexp-cjk/rewrite-flags/-/rewrite-flags-1.0.8.tgz#9722a2554517a53496d9dfb1280c20d0a2a79139"
-  integrity sha512-cY+BPj6RrDhxzpsT5uP4Z1eRU2a6KIPp4N9GdmZI9Jj15tbPZutnnY2kRlk0BB0fESoBaFpB5QlYKwK5NFAX8w==
+"@regexp-cjk/rewrite-flags@^1.0.17":
+  version "1.0.17"
+  resolved "https://registry.yarnpkg.com/@regexp-cjk/rewrite-flags/-/rewrite-flags-1.0.17.tgz#6454507ba5c4e0dab6eb665b87437ea2311419c0"
+  integrity sha512-jCG5kfqSIEPgzAw7U8Hcc8+MNHLyQWyiXNCA14yMyvpi6lxSCraATVZ6WgPguY70pfPCrZ9em49Meen2Jpz8/Q==
   dependencies:
-    tslib "^2.3.0"
+    tslib "^2.3.1"
 
 "@sindresorhus/is@^4.0.0":
   version "4.0.1"
@@ -867,13 +867,13 @@ event-target-shim@^5.0.0:
   resolved "https://registry.yarnpkg.com/event-target-shim/-/event-target-shim-5.0.1.tgz#5d4d3ebdf9583d63a5333ce2deb7480ab2b05789"
   integrity sha512-i/2XbnSz/uxRCU6+NdVJgKWDTM427+MqYbkQzD321DuCQJUqOuJKIA0IM2+W2xtYHdKOmZ4dR6fExsd4SXL+WQ==
 
-execall2@^2.0.11:
-  version "2.0.11"
-  resolved "https://registry.yarnpkg.com/execall2/-/execall2-2.0.11.tgz#fb26ca66f0eb8f4b8e49824c2bc806bf9211471e"
-  integrity sha512-ol/IBWMevv3rFyw5dYoWpPyNXwZv34fCytYt2o0qh4fyTzeKmGta3jBZgMinXBHUpYxSHZgYVfSA7LqLKawUtA==
+execall2@^2.0.21:
+  version "2.0.21"
+  resolved "https://registry.yarnpkg.com/execall2/-/execall2-2.0.21.tgz#8199418d1b97dfc0e869755cec5ca9cefae896a5"
+  integrity sha512-X4bfYFbDAul1+P5bX91F7g5zhHNYWffxeQqxS4UZZMD5Y3LzFLpt0SZT1j85WOAS1xJABGZ9gEyJLhLHu19iQg==
   dependencies:
-    "@regexp-cjk/clone-regexp" "^1.0.8"
-    tslib "^2.3.0"
+    "@regexp-cjk/clone-regexp" "^1.0.20"
+    tslib "^2.3.1"
 
 expand-template@^2.0.3:
   version "2.0.3"
@@ -1868,10 +1868,10 @@ tslib@^1.8.1:
   resolved "https://registry.yarnpkg.com/tslib/-/tslib-1.14.1.tgz#cf2d38bdc34a134bcaf1091c41f6619e2f672d00"
   integrity sha512-Xni35NKzjgMrwevysHTCArtLDpPvye8zV/0E4EyYn43P7/7qvQwPh9BGkHewbMulVntbigmcT7rdX3BNo9wRJg==
 
-tslib@^2.2.0, tslib@^2.3.0:
-  version "2.3.0"
-  resolved "https://registry.yarnpkg.com/tslib/-/tslib-2.3.0.tgz#803b8cdab3e12ba581a4ca41c8839bbb0dacb09e"
-  integrity sha512-N82ooyxVNm6h1riLCoyS9e3fuJ3AMG2zIZs2Gd1ATcSFjSA23Q0fzjjZeh0jbJvWVDZ0cJT8yaNNaaXHzueNjg==
+tslib@^2.2.0, tslib@^2.3.1:
+  version "2.3.1"
+  resolved "https://registry.yarnpkg.com/tslib/-/tslib-2.3.1.tgz#e8a335add5ceae51aa261d32a490158ef042ef01"
+  integrity sha512-77EbyPPpMz+FRFRuAFlWMtmgUWGe9UOG2Z25NqCwiIjRhOf5iKGuzSe5P2w1laq+FkRy4p+PCuVkJSGkzTEKVw==
 
 tsutils@^3.21.0:
   version "3.21.0"
