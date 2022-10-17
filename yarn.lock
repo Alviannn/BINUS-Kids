@@ -87,21 +87,21 @@
     "@nodelib/fs.scandir" "2.1.5"
     fastq "^1.6.0"
 
-"@regexp-cjk/clone-regexp@^1.0.8":
-  version "1.0.8"
-  resolved "https://registry.yarnpkg.com/@regexp-cjk/clone-regexp/-/clone-regexp-1.0.8.tgz#c3b966f833681d56e5fe58218727bf48d3badf19"
-  integrity sha512-Dw6JP5OELMsZ66h9f61C9M2YsZDzLMPHh65D0dlgp5YVrRBatqAABaVHWX3FnYqH2ahAoNedi802SyrY+PaZkA==
+"@regexp-cjk/clone-regexp@^1.0.21":
+  version "1.0.21"
+  resolved "https://registry.yarnpkg.com/@regexp-cjk/clone-regexp/-/clone-regexp-1.0.21.tgz#c75e2a2913e4277eecea9d92d8c24131c0f83630"
+  integrity sha512-SDJeZjv3kk/6A0MCRGGZ826ae3jVAk43UZRCswcED1FTm/c/J0ozraHWqKt4bHgf89tbNE8bW4jK/GlIUq7L7w==
   dependencies:
-    "@regexp-cjk/rewrite-flags" "^1.0.8"
-    clone-regexp "< 3 >= 2.2"
-    tslib "^2.3.0"
+    "@regexp-cjk/rewrite-flags" "^1.0.18"
+    clone-regexp "<3 >=2.2"
+    tslib ">=2"
 
-"@regexp-cjk/rewrite-flags@^1.0.8":
-  version "1.0.8"
-  resolved "https://registry.yarnpkg.com/@regexp-cjk/rewrite-flags/-/rewrite-flags-1.0.8.tgz#9722a2554517a53496d9dfb1280c20d0a2a79139"
-  integrity sha512-cY+BPj6RrDhxzpsT5uP4Z1eRU2a6KIPp4N9GdmZI9Jj15tbPZutnnY2kRlk0BB0fESoBaFpB5QlYKwK5NFAX8w==
+"@regexp-cjk/rewrite-flags@^1.0.18":
+  version "1.0.18"
+  resolved "https://registry.yarnpkg.com/@regexp-cjk/rewrite-flags/-/rewrite-flags-1.0.18.tgz#1db3c4e414ce35be41c1b39e204f09faa31fc42d"
+  integrity sha512-NIy1OeEa9N9ArTlQTP/MoN++Q1GkDQ9XoD1w8O3mWm97dZEx3Y2DbD3vkbk6JrceFDRDcm9UMk4pb/wF6ykVUw==
   dependencies:
-    tslib "^2.3.0"
+    tslib ">=2"
 
 "@sindresorhus/is@^4.0.0":
   version "4.0.1"
@@ -503,7 +503,7 @@ chownr@^2.0.0:
   resolved "https://registry.yarnpkg.com/chownr/-/chownr-2.0.0.tgz#15bfbe53d2eab4cf70f18a8cd68ebe5b3cb1dece"
   integrity sha512-bIomtDF5KGpdogkLd9VspvFzk9KfpyyGlS8YFVZl7TGPBHL5snIOnxeshwVgPteQ9b4Eydl+pVbIyE1DcvCWgQ==
 
-"clone-regexp@< 3 >= 2.2":
+"clone-regexp@<3 >=2.2":
   version "2.2.0"
   resolved "https://registry.yarnpkg.com/clone-regexp/-/clone-regexp-2.2.0.tgz#7d65e00885cd8796405c35a737e7a86b7429e36f"
   integrity sha512-beMpP7BOtTipFuW8hrJvREQ2DrRu3BE7by0ZpibtfBA+qfHYvMGTc2Yb1JMYPKg/JUw0CHYvpg796aNTSW9z7Q==
@@ -867,13 +867,13 @@ event-target-shim@^5.0.0:
   resolved "https://registry.yarnpkg.com/event-target-shim/-/event-target-shim-5.0.1.tgz#5d4d3ebdf9583d63a5333ce2deb7480ab2b05789"
   integrity sha512-i/2XbnSz/uxRCU6+NdVJgKWDTM427+MqYbkQzD321DuCQJUqOuJKIA0IM2+W2xtYHdKOmZ4dR6fExsd4SXL+WQ==
 
-execall2@^2.0.11:
-  version "2.0.11"
-  resolved "https://registry.yarnpkg.com/execall2/-/execall2-2.0.11.tgz#fb26ca66f0eb8f4b8e49824c2bc806bf9211471e"
-  integrity sha512-ol/IBWMevv3rFyw5dYoWpPyNXwZv34fCytYt2o0qh4fyTzeKmGta3jBZgMinXBHUpYxSHZgYVfSA7LqLKawUtA==
+execall2@^2.0.22:
+  version "2.0.22"
+  resolved "https://registry.yarnpkg.com/execall2/-/execall2-2.0.22.tgz#a148ebe521f442b8406f2dc0d8c9f06d8b383abc"
+  integrity sha512-bQiWCCcsC6Y2H0J6pjcCAFEasLBEVITLo14ahPqNJ7+DeHYrrm6U8TZN/H1odSOyO3zhvCivg0fY+nKqgHInAA==
   dependencies:
-    "@regexp-cjk/clone-regexp" "^1.0.8"
-    tslib "^2.3.0"
+    "@regexp-cjk/clone-regexp" "^1.0.21"
+    tslib ">=2"
 
 expand-template@^2.0.3:
   version "2.0.3"
@@ -1863,15 +1863,15 @@ tough-cookie@^4.0.0:
     punycode "^2.1.1"
     universalify "^0.1.2"
 
+tslib@>=2, tslib@^2.2.0:
+  version "2.4.0"
+  resolved "https://registry.yarnpkg.com/tslib/-/tslib-2.4.0.tgz#7cecaa7f073ce680a05847aa77be941098f36dc3"
+  integrity sha512-d6xOpEDfsi2CZVlPQzGeux8XMwLT9hssAsaPYExaQMuYskwb+x1x7J371tWlbBdWHroy99KnVB6qIkUbs5X3UQ==
+
 tslib@^1.8.1:
   version "1.14.1"
   resolved "https://registry.yarnpkg.com/tslib/-/tslib-1.14.1.tgz#cf2d38bdc34a134bcaf1091c41f6619e2f672d00"
   integrity sha512-Xni35NKzjgMrwevysHTCArtLDpPvye8zV/0E4EyYn43P7/7qvQwPh9BGkHewbMulVntbigmcT7rdX3BNo9wRJg==
-
-tslib@^2.2.0, tslib@^2.3.0:
-  version "2.3.0"
-  resolved "https://registry.yarnpkg.com/tslib/-/tslib-2.3.0.tgz#803b8cdab3e12ba581a4ca41c8839bbb0dacb09e"
-  integrity sha512-N82ooyxVNm6h1riLCoyS9e3fuJ3AMG2zIZs2Gd1ATcSFjSA23Q0fzjjZeh0jbJvWVDZ0cJT8yaNNaaXHzueNjg==
 
 tsutils@^3.21.0:
   version "3.21.0"
